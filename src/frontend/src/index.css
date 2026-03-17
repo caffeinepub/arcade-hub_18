@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* === NEON ARCADE DARK THEME === */
+    --background: 0.09 0.012 240;
+    --foreground: 0.95 0.01 230;
+
+    --card: 0.11 0.018 240;
+    --card-foreground: 0.95 0.01 230;
+
+    --popover: 0.13 0.02 240;
+    --popover-foreground: 0.95 0.01 230;
+
+    /* cyan */
+    --primary: 0.82 0.14 208;
+    --primary-foreground: 0.09 0.012 240;
+
+    /* magenta */
+    --secondary: 0.6 0.28 300;
+    --secondary-foreground: 0.95 0.01 230;
+
+    /* muted panel */
+    --muted: 0.15 0.02 240;
+    --muted-foreground: 0.67 0.02 220;
+
+    /* neon green */
+    --accent: 0.85 0.21 148;
+    --accent-foreground: 0.09 0.012 240;
+
+    --destructive: 0.65 0.25 22;
+    --destructive-foreground: 0.95 0.01 230;
+
+    --border: 0.82 0.14 208 / 20%;
+    --input: 0.82 0.14 208 / 15%;
+    --ring: 0.82 0.14 208;
+
+    /* gold */
+    --chart-1: 0.88 0.16 92;
+    --chart-2: 0.82 0.14 208;
+    --chart-3: 0.6 0.28 300;
+    --chart-4: 0.85 0.21 148;
+    --chart-5: 0.75 0.17 62;
+
+    --sidebar: 0.11 0.018 240;
+    --sidebar-foreground: 0.95 0.01 230;
+    --sidebar-primary: 0.82 0.14 208;
+    --sidebar-primary-foreground: 0.09 0.012 240;
+    --sidebar-accent: 0.15 0.02 240;
+    --sidebar-accent-foreground: 0.95 0.01 230;
+    --sidebar-border: 0.82 0.14 208 / 20%;
+    --sidebar-ring: 0.82 0.14 208;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Satoshi", system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    box-shadow: 0 0 10px rgba(33, 212, 255, 0.4), 0 0 20px
+      rgba(33, 212, 255, 0.2), inset 0 0 10px rgba(33, 212, 255, 0.05);
+  }
+  .glow-magenta {
+    box-shadow: 0 0 10px rgba(200, 60, 255, 0.4), 0 0 20px
+      rgba(200, 60, 255, 0.2), inset 0 0 10px rgba(200, 60, 255, 0.05);
+  }
+  .glow-green {
+    box-shadow: 0 0 10px rgba(56, 242, 109, 0.4), 0 0 20px
+      rgba(56, 242, 109, 0.2);
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(33, 212, 255, 0.8), 0 0 20px
+      rgba(33, 212, 255, 0.4);
+  }
+  .text-glow-magenta {
+    text-shadow: 0 0 10px rgba(200, 60, 255, 0.8), 0 0 20px
+      rgba(200, 60, 255, 0.4);
+  }
+  .text-glow-green {
+    text-shadow: 0 0 10px rgba(56, 242, 109, 0.8), 0 0 20px
+      rgba(56, 242, 109, 0.4);
+  }
+  .arcade-font {
+    font-family: "Press Start 2P", monospace;
+  }
+  .neon-border-cyan {
+    border: 1px solid rgba(33, 212, 255, 0.6);
+    box-shadow: 0 0 8px rgba(33, 212, 255, 0.3), inset 0 0 8px
+      rgba(33, 212, 255, 0.05);
+  }
+  .neon-border-magenta {
+    border: 1px solid rgba(200, 60, 255, 0.6);
+    box-shadow: 0 0 8px rgba(200, 60, 255, 0.3), inset 0 0 8px
+      rgba(200, 60, 255, 0.05);
+  }
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+}
