@@ -1,4 +1,4 @@
-import { Gamepad2, Search } from "lucide-react";
+import { Gamepad2, Search, Youtube } from "lucide-react";
 
 interface Props {
   onNavClick?: (section: string) => void;
@@ -58,6 +58,17 @@ export default function Header({ onNavClick }: Props) {
 
           {/* Right */}
           <div className="flex items-center gap-3">
+            <a
+              href="https://www.youtube.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="header.youtube_button"
+              className="font-arcade text-[9px] mc-btn px-3 py-2 tracking-wider flex items-center gap-1"
+              style={{ color: "#ff0000", borderColor: "#ff0000" }}
+            >
+              <Youtube className="h-4 w-4" />
+              <span className="hidden sm:inline">YOUTUBE</span>
+            </a>
             <button
               type="button"
               data-ocid="header.search_input"
