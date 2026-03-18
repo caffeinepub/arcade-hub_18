@@ -138,59 +138,93 @@ function initGame(): GameData {
   };
 }
 
-function drawShip(
+// Draw creeper face (player)
+function drawCreeper(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
-  color: string,
-  glowColor: string,
-  size = 18,
+  size = 14,
+  color = "#3A7A3A",
 ) {
-  ctx.save();
-  ctx.shadowBlur = 14;
-  ctx.shadowColor = glowColor;
+  const hs = size;
   ctx.fillStyle = color;
-  ctx.strokeStyle = glowColor;
+  ctx.fillRect(x - hs, y - hs, hs * 2, hs * 2);
+  // Block highlight
+  ctx.strokeStyle = "rgba(255,255,255,0.25)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(x, y - size);
-  ctx.lineTo(x - size * 0.7, y + size * 0.6);
-  ctx.lineTo(x - size * 0.25, y + size * 0.2);
-  ctx.lineTo(x, y + size * 0.4);
-  ctx.lineTo(x + size * 0.25, y + size * 0.2);
-  ctx.lineTo(x + size * 0.7, y + size * 0.6);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(x - hs, y + hs);
+  ctx.lineTo(x - hs, y - hs);
+  ctx.lineTo(x + hs, y - hs);
   ctx.stroke();
-  ctx.restore();
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.beginPath();
+  ctx.moveTo(x + hs, y - hs);
+  ctx.lineTo(x + hs, y + hs);
+  ctx.lineTo(x - hs, y + hs);
+  ctx.stroke();
+  // Eyes
+  ctx.fillStyle = "#000";
+  ctx.fillRect(x - hs + 3, y - hs + 4, 4, 4);
+  ctx.fillRect(x + hs - 7, y - hs + 4, 4, 4);
+  // Mouth (creeper face)
+  ctx.fillRect(x - 3, y, 6, 3);
+  ctx.fillRect(x - 5, y + 3, 4, 4);
+  ctx.fillRect(x + 1, y + 3, 4, 4);
 }
 
-function drawEnemyShip(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  type: EnemyType,
-) {
-  const color = type === "basic" ? "#FFB800" : "#FF3C6E";
-  const glow = type === "basic" ? "#FFB80088" : "#FF3C6E88";
-  const size = 12;
-  ctx.save();
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = glow;
-  ctx.fillStyle = color;
-  ctx.strokeStyle = glow;
+// Draw zombie face (basic enemy)
+function drawZombie(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  const hw = 10;
+  const hh = 9;
+  ctx.fillStyle = "#5A7A5A";
+  ctx.fillRect(x - hw, y - hh, hw * 2, hh * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(x, y + size);
-  ctx.lineTo(x - size * 0.8, y - size * 0.5);
-  ctx.lineTo(x - size * 0.3, y - size * 0.1);
-  ctx.lineTo(x, y - size * 0.3);
-  ctx.lineTo(x + size * 0.3, y - size * 0.1);
-  ctx.lineTo(x + size * 0.8, y - size * 0.5);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(x - hw, y + hh);
+  ctx.lineTo(x - hw, y - hh);
+  ctx.lineTo(x + hw, y - hh);
   ctx.stroke();
-  ctx.restore();
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.beginPath();
+  ctx.moveTo(x + hw, y - hh);
+  ctx.lineTo(x + hw, y + hh);
+  ctx.lineTo(x - hw, y + hh);
+  ctx.stroke();
+  // Eyes
+  ctx.fillStyle = "#000";
+  ctx.fillRect(x - 7, y - 5, 4, 3);
+  ctx.fillRect(x + 3, y - 5, 4, 3);
+}
+
+// Draw small creeper face (zigzag enemy)
+function drawSmallCreeper(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  const hw = 10;
+  const hh = 9;
+  ctx.fillStyle = "#3A7A3A";
+  ctx.fillRect(x - hw, y - hh, hw * 2, hh * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.25)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - hw, y + hh);
+  ctx.lineTo(x - hw, y - hh);
+  ctx.lineTo(x + hw, y - hh);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.beginPath();
+  ctx.moveTo(x + hw, y - hh);
+  ctx.lineTo(x + hw, y + hh);
+  ctx.lineTo(x - hw, y + hh);
+  ctx.stroke();
+  // Creeper eyes
+  ctx.fillStyle = "#000";
+  ctx.fillRect(x - 7, y - 5, 3, 3);
+  ctx.fillRect(x + 4, y - 5, 3, 3);
+  // Mouth
+  ctx.fillRect(x - 2, y + 1, 4, 2);
+  ctx.fillRect(x - 4, y + 3, 3, 3);
+  ctx.fillRect(x + 1, y + 3, 3, 3);
 }
 
 export default function SpaceShooterGame({ onGameOver }: Props) {
@@ -220,66 +254,61 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
     if (!ctx) return;
     const g = gRef.current;
 
-    ctx.fillStyle = "#060610";
+    // Dark cave
+    ctx.fillStyle = "#0D0D0D";
     ctx.fillRect(0, 0, W, H);
 
+    // Torch glows instead of white stars
     for (const s of g.stars) {
       ctx.globalAlpha = s.alpha;
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#FF9500";
       ctx.fillRect(s.x, s.y, s.size, s.size);
+      // tiny neighbor pixel for flicker effect
+      ctx.fillStyle = "#FF7000";
+      ctx.fillRect(s.x + 1, s.y, 1, 1);
     }
     ctx.globalAlpha = 1;
 
+    // Enemy bullets — orange fireball
     for (const b of g.bullets) {
       if (b.owner !== "enemy") continue;
-      ctx.save();
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = "#FF3C3C";
-      ctx.fillStyle = "#FF3C3C";
-      ctx.beginPath();
-      ctx.ellipse(b.x, b.y, 3, 7, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      ctx.fillStyle = "#FF6600";
+      ctx.fillRect(b.x - 3, b.y - 3, 6, 6);
     }
 
+    // Player bullets — gold arrow
     for (const b of g.bullets) {
       if (b.owner !== "player") continue;
-      ctx.save();
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "#00F0FF";
-      ctx.fillStyle = "#00F0FF";
-      ctx.beginPath();
-      ctx.ellipse(b.x, b.y, 2.5, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      ctx.fillStyle = "#FFD700";
+      ctx.fillRect(b.x - 2, b.y - 8, 4, 12);
     }
 
+    // Draw enemies
     for (const e of g.enemies) {
-      drawEnemyShip(ctx, e.x, e.y, e.type);
+      if (e.type === "basic") {
+        drawZombie(ctx, e.x, e.y);
+      } else {
+        drawSmallCreeper(ctx, e.x, e.y);
+      }
     }
 
+    // Draw player
     const py = H - 50;
     if (g.state === "PLAYING" || g.state === "WAVE_CLEAR") {
       const visible =
         g.invincible === 0 || Math.floor(g.frameCount / 4) % 2 === 0;
       if (visible) {
-        drawShip(ctx, g.playerX, py, "#FF3C6E", "#FF3C6E88");
-        ctx.save();
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = "#FF3C6E";
-        ctx.fillStyle = "#FF3C6E66";
-        ctx.beginPath();
-        ctx.ellipse(g.playerX, py + 18, 5, 9, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+        drawCreeper(ctx, g.playerX, py, 14, "#3A7A3A");
+        // Exhaust flicker
+        ctx.fillStyle = "rgba(255,150,0,0.5)";
+        ctx.fillRect(g.playerX - 3, py + 16, 6, 6);
       }
     }
 
+    // Explosions — TNT blast orange/yellow
     for (const ex of g.explosions) {
       ctx.save();
       ctx.globalAlpha = ex.alpha;
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = ex.color;
       ctx.strokeStyle = ex.color;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -291,75 +320,59 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
       ctx.restore();
     }
 
-    ctx.fillStyle = "rgba(6,6,16,0.7)";
+    // HUD
+    ctx.fillStyle = "rgba(13,13,13,0.8)";
     ctx.fillRect(0, 0, W, 36);
     ctx.font = "10px 'Press Start 2P', monospace";
-    ctx.fillStyle = "#FF3C6E";
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = "#FF3C6E";
+    ctx.fillStyle = "#FFD700";
     ctx.fillText(`SCORE: ${g.score}`, 10, 23);
-    ctx.fillStyle = "#00F0FF";
-    ctx.shadowColor = "#00F0FF";
+    ctx.fillStyle = "#ffffff";
     const waveText = `WAVE ${g.wave}`;
     const wm = ctx.measureText(waveText);
     ctx.fillText(waveText, W / 2 - wm.width / 2, 23);
-    ctx.shadowBlur = 0;
     for (let i = 0; i < g.lives; i++) {
-      ctx.fillStyle = "#FF3C6E";
+      ctx.fillStyle = "#5D8A3C";
       ctx.font = "12px serif";
       ctx.fillText("\u2665", W - 30 - i * 18, 24);
     }
 
     if (g.state === "WAITING") {
-      ctx.fillStyle = "rgba(6,6,16,0.8)";
+      ctx.fillStyle = "rgba(13,13,13,0.8)";
       ctx.fillRect(0, H / 2 - 60, W, 120);
       ctx.textAlign = "center";
       ctx.font = "14px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#FF3C6E";
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = "#FF3C6E";
-      ctx.fillText("SPACE SHOOTER", W / 2, H / 2 - 20);
+      ctx.fillStyle = "#FFD700";
+      ctx.fillText("CAVE SHOOTER", W / 2, H / 2 - 20);
       ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#00F0FF";
-      ctx.shadowColor = "#00F0FF";
+      ctx.fillStyle = "#ffffff";
       ctx.fillText("PRESS SPACE TO START", W / 2, H / 2 + 10);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
 
     if (g.state === "WAVE_CLEAR") {
       ctx.textAlign = "center";
       ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#FFB800";
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = "#FFB800";
+      ctx.fillStyle = "#FFD700";
       ctx.fillText(`WAVE ${g.wave - 1} CLEAR!`, W / 2, H / 2 - 10);
       ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#00F0FF";
-      ctx.shadowColor = "#00F0FF";
+      ctx.fillStyle = "#ffffff";
       ctx.fillText(`WAVE ${g.wave} INCOMING...`, W / 2, H / 2 + 16);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
 
     if (g.state === "GAME_OVER") {
-      ctx.fillStyle = "rgba(6,6,16,0.85)";
+      ctx.fillStyle = "rgba(13,13,13,0.85)";
       ctx.fillRect(0, H / 2 - 80, W, 160);
       ctx.textAlign = "center";
       ctx.font = "16px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#FF3C6E";
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = "#FF3C6E";
+      ctx.fillStyle = "#FFD700";
       ctx.fillText("GAME OVER", W / 2, H / 2 - 30);
       ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#FFB800";
-      ctx.shadowColor = "#FFB800";
+      ctx.fillStyle = "#FFD700";
       ctx.fillText(`SCORE: ${g.score}`, W / 2, H / 2);
-      ctx.fillStyle = "#00F0FF";
-      ctx.shadowColor = "#00F0FF";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "8px 'Press Start 2P', monospace";
       ctx.fillText("PRESS SPACE TO RESTART", W / 2, H / 2 + 30);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
   }, []);
@@ -449,7 +462,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           radius: 5,
           maxRadius: 40,
           alpha: 1,
-          color: "#FF3C6E",
+          color: "#FF9500",
           id: g.xid++,
         });
       }
@@ -478,7 +491,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           radius: 5,
           maxRadius: 35,
           alpha: 1,
-          color: e.type === "basic" ? "#FFB800" : "#FF3C6E",
+          color: e.type === "basic" ? "#FF9500" : "#FF6600",
           id: g.xid++,
         });
       } else {
@@ -504,7 +517,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           radius: 5,
           maxRadius: 40,
           alpha: 1,
-          color: "#FF3C6E",
+          color: "#FF9500",
           id: g.xid++,
         });
       }
@@ -625,8 +638,8 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
         tabIndex={0}
         className="rounded-lg max-w-full"
         style={{
-          border: "1px solid rgba(255,60,110,0.5)",
-          boxShadow: "0 0 24px rgba(255,60,110,0.25)",
+          border: "3px solid #3A7A3A",
+          boxShadow: "none",
           outline: "none",
         }}
       />
@@ -638,11 +651,11 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           onPointerDown={() => touchLeft(true)}
           onPointerUp={() => touchLeft(false)}
           onPointerLeave={() => touchLeft(false)}
-          className="w-14 h-14 rounded-full text-xl flex items-center justify-center select-none active:opacity-60"
+          className="w-14 h-14 rounded text-xl flex items-center justify-center select-none active:opacity-60"
           style={{
-            background: "rgba(255,60,110,0.15)",
-            border: "1px solid rgba(255,60,110,0.5)",
-            color: "#FF3C6E",
+            background: "rgba(58,122,58,0.2)",
+            border: "2px solid #3A7A3A",
+            color: "#5D8A3C",
           }}
         >
           &#9664;
@@ -651,11 +664,11 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           type="button"
           data-ocid="space_shooter.shoot_button"
           onPointerDown={touchShoot}
-          className="w-16 h-16 rounded-full flex items-center justify-center select-none active:opacity-60"
+          className="w-16 h-16 rounded flex items-center justify-center select-none active:opacity-60"
           style={{
-            background: "rgba(0,240,255,0.15)",
-            border: "2px solid rgba(0,240,255,0.6)",
-            color: "#00F0FF",
+            background: "rgba(255,215,0,0.15)",
+            border: "2px solid #FFD700",
+            color: "#FFD700",
             fontFamily: "'Press Start 2P', monospace",
             fontSize: "8px",
           }}
@@ -668,11 +681,11 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
           onPointerDown={() => touchRight(true)}
           onPointerUp={() => touchRight(false)}
           onPointerLeave={() => touchRight(false)}
-          className="w-14 h-14 rounded-full text-xl flex items-center justify-center select-none active:opacity-60"
+          className="w-14 h-14 rounded text-xl flex items-center justify-center select-none active:opacity-60"
           style={{
-            background: "rgba(255,60,110,0.15)",
-            border: "1px solid rgba(255,60,110,0.5)",
-            color: "#FF3C6E",
+            background: "rgba(58,122,58,0.2)",
+            border: "2px solid #3A7A3A",
+            color: "#5D8A3C",
           }}
         >
           &#9654;

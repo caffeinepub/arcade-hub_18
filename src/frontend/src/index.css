@@ -13,113 +13,222 @@
 
 @layer base {
   :root {
-    --radius: 0.5rem;
+    --radius: 0rem;
 
-    /* === NEON ARCADE DARK THEME === */
-    --background: 0.09 0.012 240;
-    --foreground: 0.95 0.01 230;
+    /* === MINECRAFT DARK THEME === */
+    /* coal/stone dark background */
+    --background: 0.18 0.005 80;
+    --foreground: 0.92 0.01 80;
 
-    --card: 0.11 0.018 240;
-    --card-foreground: 0.95 0.01 230;
+    /* dark stone card */
+    --card: 0.22 0.006 80;
+    --card-foreground: 0.92 0.01 80;
 
-    --popover: 0.13 0.02 240;
-    --popover-foreground: 0.95 0.01 230;
+    --popover: 0.24 0.007 80;
+    --popover-foreground: 0.92 0.01 80;
 
-    /* cyan */
-    --primary: 0.82 0.14 208;
-    --primary-foreground: 0.09 0.012 240;
+    /* grass green primary */
+    --primary: 0.58 0.14 138;
+    --primary-foreground: 0.1 0.005 80;
 
-    /* magenta */
-    --secondary: 0.6 0.28 300;
-    --secondary-foreground: 0.95 0.01 230;
+    /* dirt brown secondary */
+    --secondary: 0.45 0.09 55;
+    --secondary-foreground: 0.92 0.01 80;
 
-    /* muted panel */
-    --muted: 0.15 0.02 240;
-    --muted-foreground: 0.67 0.02 220;
+    /* muted stone */
+    --muted: 0.26 0.007 80;
+    --muted-foreground: 0.58 0.01 80;
 
-    /* neon green */
-    --accent: 0.85 0.21 148;
-    --accent-foreground: 0.09 0.012 240;
+    /* diamond blue accent */
+    --accent: 0.72 0.13 222;
+    --accent-foreground: 0.1 0.005 80;
 
-    --destructive: 0.65 0.25 22;
-    --destructive-foreground: 0.95 0.01 230;
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 0.92 0.01 80;
 
-    --border: 0.82 0.14 208 / 20%;
-    --input: 0.82 0.14 208 / 15%;
-    --ring: 0.82 0.14 208;
+    --border: 0.32 0.008 80;
+    --input: 0.3 0.007 80;
+    --ring: 0.58 0.14 138;
 
-    /* gold */
-    --chart-1: 0.88 0.16 92;
-    --chart-2: 0.82 0.14 208;
-    --chart-3: 0.6 0.28 300;
-    --chart-4: 0.85 0.21 148;
-    --chart-5: 0.75 0.17 62;
+    /* gold chart-1 */
+    --chart-1: 0.82 0.17 85;
+    --chart-2: 0.72 0.13 222;
+    --chart-3: 0.45 0.09 55;
+    --chart-4: 0.58 0.14 138;
+    --chart-5: 0.6 0.16 300;
 
-    --sidebar: 0.11 0.018 240;
-    --sidebar-foreground: 0.95 0.01 230;
-    --sidebar-primary: 0.82 0.14 208;
-    --sidebar-primary-foreground: 0.09 0.012 240;
-    --sidebar-accent: 0.15 0.02 240;
-    --sidebar-accent-foreground: 0.95 0.01 230;
-    --sidebar-border: 0.82 0.14 208 / 20%;
-    --sidebar-ring: 0.82 0.14 208;
+    --sidebar: 0.2 0.006 80;
+    --sidebar-foreground: 0.92 0.01 80;
+    --sidebar-primary: 0.58 0.14 138;
+    --sidebar-primary-foreground: 0.1 0.005 80;
+    --sidebar-accent: 0.26 0.007 80;
+    --sidebar-accent-foreground: 0.92 0.01 80;
+    --sidebar-border: 0.32 0.008 80;
+    --sidebar-ring: 0.58 0.14 138;
   }
 
   * {
     @apply border-border;
+    image-rendering: pixelated;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: "Satoshi", system-ui, sans-serif;
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        rgba(0, 0, 0, 0.12) 31px,
+        rgba(0, 0, 0, 0.12) 32px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 31px,
+        rgba(0, 0, 0, 0.12) 31px,
+        rgba(0, 0, 0, 0.12) 32px
+      );
   }
 }
 
 @layer utilities {
-  .glow-cyan {
-    box-shadow: 0 0 10px rgba(33, 212, 255, 0.4), 0 0 20px
-      rgba(33, 212, 255, 0.2), inset 0 0 10px rgba(33, 212, 255, 0.05);
+  /* Minecraft chiseled border: light top-left, dark bottom-right */
+  .mc-border {
+    border-style: solid;
+    border-width: 3px;
+    border-top-color: #7a7a7a;
+    border-left-color: #7a7a7a;
+    border-bottom-color: #2a2a2a;
+    border-right-color: #2a2a2a;
+    box-shadow: inset 1px 1px 0 #a0a0a0, inset -1px -1px 0 #1a1a1a;
   }
-  .glow-magenta {
-    box-shadow: 0 0 10px rgba(200, 60, 255, 0.4), 0 0 20px
-      rgba(200, 60, 255, 0.2), inset 0 0 10px rgba(200, 60, 255, 0.05);
+
+  /* Minecraft panel: dark stone with chiseled border */
+  .mc-panel {
+    background-color: #2d2d2d;
+    border-style: solid;
+    border-width: 3px;
+    border-top-color: #5a5a5a;
+    border-left-color: #5a5a5a;
+    border-bottom-color: #111111;
+    border-right-color: #111111;
+    box-shadow: inset 1px 1px 0 #3d3d3d, inset -1px -1px 0 #0a0a0a;
   }
-  .glow-green {
-    box-shadow: 0 0 10px rgba(56, 242, 109, 0.4), 0 0 20px
-      rgba(56, 242, 109, 0.2);
+
+  /* Minecraft inventory slot */
+  .mc-slot {
+    background-color: #8b8b8b;
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #373737;
+    border-left-color: #373737;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
   }
-  .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(33, 212, 255, 0.8), 0 0 20px
-      rgba(33, 212, 255, 0.4);
+
+  /* Minecraft stone button style */
+  .mc-btn {
+    background-color: #7a7a7a;
+    border-style: solid;
+    border-width: 3px;
+    border-top-color: #b8b8b8;
+    border-left-color: #b8b8b8;
+    border-bottom-color: #373737;
+    border-right-color: #373737;
+    color: #f0f0f0;
+    text-shadow: 2px 2px 0 #000;
+    cursor: pointer;
+    transition: filter 0.1s;
   }
-  .text-glow-magenta {
-    text-shadow: 0 0 10px rgba(200, 60, 255, 0.8), 0 0 20px
-      rgba(200, 60, 255, 0.4);
+  .mc-btn:hover {
+    filter: brightness(1.2);
+    background-color: #8a8a8a;
   }
-  .text-glow-green {
-    text-shadow: 0 0 10px rgba(56, 242, 109, 0.8), 0 0 20px
-      rgba(56, 242, 109, 0.4);
+  .mc-btn:active {
+    border-top-color: #373737;
+    border-left-color: #373737;
+    border-bottom-color: #b8b8b8;
+    border-right-color: #b8b8b8;
   }
+
+  /* Minecraft green button (grass) */
+  .mc-btn-green {
+    background-color: #4a7a28;
+    border-style: solid;
+    border-width: 3px;
+    border-top-color: #6dbc3a;
+    border-left-color: #6dbc3a;
+    border-bottom-color: #1e3a0a;
+    border-right-color: #1e3a0a;
+    color: #f0f0f0;
+    text-shadow: 2px 2px 0 #000;
+    cursor: pointer;
+    transition: filter 0.1s;
+  }
+  .mc-btn-green:hover {
+    filter: brightness(1.2);
+  }
+
+  /* Minecraft hard text shadow */
+  .mc-text-shadow {
+    text-shadow: 2px 2px 0 #000000;
+  }
+  .mc-text-shadow-green {
+    text-shadow: 2px 2px 0 #1a3a00;
+  }
+  .mc-text-shadow-gold {
+    text-shadow: 2px 2px 0 #5a3a00;
+  }
+
+  /* Grass block top border utility */
+  .mc-grass-border-bottom {
+    border-bottom: 4px solid #5d8a2c;
+  }
+  .mc-dirt-border-top {
+    border-top: 4px solid #7c5230;
+  }
+
   .arcade-font {
     font-family: "Press Start 2P", monospace;
   }
+
+  /* Legacy aliases kept for compatibility */
   .neon-border-cyan {
-    border: 1px solid rgba(33, 212, 255, 0.6);
-    box-shadow: 0 0 8px rgba(33, 212, 255, 0.3), inset 0 0 8px
-      rgba(33, 212, 255, 0.05);
+    @apply mc-border;
   }
   .neon-border-magenta {
-    border: 1px solid rgba(200, 60, 255, 0.6);
-    box-shadow: 0 0 8px rgba(200, 60, 255, 0.3), inset 0 0 8px
-      rgba(200, 60, 255, 0.05);
+    @apply mc-panel;
+    border-top-color: #6a4a8a;
+    border-left-color: #6a4a8a;
+    border-bottom-color: #1a0a2a;
+    border-right-color: #1a0a2a;
   }
   .scanlines {
     background-image: repeating-linear-gradient(
       0deg,
       transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.08) 2px,
-      rgba(0, 0, 0, 0.08) 4px
+      transparent 3px,
+      rgba(0, 0, 0, 0.15) 3px,
+      rgba(0, 0, 0, 0.15) 4px
     );
+  }
+  .glow-cyan {
+    box-shadow: 2px 2px 0 #000;
+  }
+  .glow-magenta {
+    box-shadow: 2px 2px 0 #000;
+  }
+  .glow-green {
+    box-shadow: 2px 2px 0 #000;
+  }
+  .text-glow-cyan {
+    text-shadow: 2px 2px 0 #000;
+  }
+  .text-glow-magenta {
+    text-shadow: 2px 2px 0 #000;
+  }
+  .text-glow-green {
+    text-shadow: 2px 2px 0 #1a3a00;
   }
 }

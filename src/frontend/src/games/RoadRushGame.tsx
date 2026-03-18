@@ -20,7 +20,8 @@ const LANE_CENTERS = [
   ROAD_LEFT + LANE_WIDTH * 2.5,
 ];
 
-const ENEMY_COLORS = ["#FF4C1A", "#FFD700", "#00E5FF", "#FF69B4", "#7FFF00"];
+// Minecraft earthy enemy colors
+const ENEMY_COLORS = ["#8B5E3C", "#5D8A3C", "#C8A96E", "#7A7A7A", "#DBC46C"];
 
 interface Enemy {
   x: number;
@@ -29,7 +30,7 @@ interface Enemy {
   lane: number;
 }
 
-function drawCar(
+function drawMinecartCar(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -41,38 +42,40 @@ function drawCar(
   const cx = x - w / 2;
   const cy = y - h / 2;
 
-  // Body
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath();
-  ctx.roundRect(cx + 4, cy, w - 8, h, 6);
-  ctx.fill();
+  // Cart body
+  ctx.fillStyle = isPlayer ? "#3A3A3A" : bodyColor;
+  ctx.fillRect(cx + 2, cy, w - 4, h);
 
-  // Windshield
-  ctx.fillStyle = isPlayer ? "rgba(0,220,255,0.6)" : "rgba(200,200,255,0.4)";
-  ctx.beginPath();
-  if (isPlayer) {
-    ctx.roundRect(cx + 8, cy + 10, w - 16, 18, 3);
-  } else {
-    ctx.roundRect(cx + 8, cy + h - 28, w - 16, 18, 3);
-  }
-  ctx.fill();
+  // Wooden plank accent across middle
+  ctx.fillStyle = isPlayer ? "#8B5E3C" : "#C8A96E";
+  ctx.fillRect(cx + 2, cy + h / 2 - 4, w - 4, 8);
 
-  // Wheels
+  // Block highlight
+  ctx.strokeStyle = "rgba(255,255,255,0.25)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx + 2, cy + h);
+  ctx.lineTo(cx + 2, cy);
+  ctx.lineTo(cx + w - 2, cy);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.beginPath();
+  ctx.moveTo(cx + w - 2, cy);
+  ctx.lineTo(cx + w - 2, cy + h);
+  ctx.lineTo(cx + 2, cy + h);
+  ctx.stroke();
+
+  // Wheels (black squares)
   ctx.fillStyle = "#111";
-  ctx.fillRect(cx, cy + 8, 8, 18);
-  ctx.fillRect(cx + w - 8, cy + 8, 8, 18);
-  ctx.fillRect(cx, cy + h - 26, 8, 18);
-  ctx.fillRect(cx + w - 8, cy + h - 26, 8, 18);
+  ctx.fillRect(cx - 2, cy + 8, 8, 10);
+  ctx.fillRect(cx + w - 6, cy + 8, 8, 10);
+  ctx.fillRect(cx - 2, cy + h - 18, 8, 10);
+  ctx.fillRect(cx + w - 6, cy + h - 18, 8, 10);
 
-  // Headlights / taillights
+  // Player indicator — gold top
   if (isPlayer) {
-    ctx.fillStyle = "rgba(255,200,50,0.9)";
-    ctx.fillRect(cx + 6, cy, 8, 5);
-    ctx.fillRect(cx + w - 14, cy, 8, 5);
-  } else {
-    ctx.fillStyle = "rgba(255,50,50,0.9)";
-    ctx.fillRect(cx + 6, cy + h - 5, 8, 5);
-    ctx.fillRect(cx + w - 14, cy + h - 5, 8, 5);
+    ctx.fillStyle = "#FFD700";
+    ctx.fillRect(cx + 8, cy, w - 16, 4);
   }
 }
 
@@ -98,24 +101,22 @@ export default function RoadRushGame({ onGameOver }: Props) {
   const draw = useCallback((ctx: CanvasRenderingContext2D) => {
     const s = stateRef.current;
 
-    // Sky/background
-    ctx.fillStyle = "#080d14";
+    // Minecraft night sky
+    ctx.fillStyle = "#1A2A3A";
     ctx.fillRect(0, 0, W, H);
 
     // Grass on sides
-    ctx.fillStyle = "#0a1a08";
+    ctx.fillStyle = "#5D8A3C";
     ctx.fillRect(0, 0, ROAD_LEFT, H);
     ctx.fillRect(ROAD_RIGHT, 0, W - ROAD_RIGHT, H);
 
-    // Road surface
-    ctx.fillStyle = "#1a1a1a";
-    ctx.fillRect(ROAD_LEFT, 0, ROAD_COUNT_W(), H);
+    // Road surface (cobblestone)
+    ctx.fillStyle = "#5A5A5A";
+    ctx.fillRect(ROAD_LEFT, 0, ROAD_RIGHT - ROAD_LEFT, H);
 
-    // Road edge lines
-    ctx.strokeStyle = "#FF4C1A";
+    // Road edge lines (dirt border)
+    ctx.strokeStyle = "#8B5E3C";
     ctx.lineWidth = 3;
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = "#FF4C1A";
     ctx.beginPath();
     ctx.moveTo(ROAD_LEFT, 0);
     ctx.lineTo(ROAD_LEFT, H);
@@ -124,13 +125,12 @@ export default function RoadRushGame({ onGameOver }: Props) {
     ctx.moveTo(ROAD_RIGHT, 0);
     ctx.lineTo(ROAD_RIGHT, H);
     ctx.stroke();
-    ctx.shadowBlur = 0;
 
-    // Dashed lane dividers
+    // Dashed lane dividers — gold rails
     const dashLen = 40;
     const dashGap = 30;
     const period = dashLen + dashGap;
-    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.strokeStyle = "#FFD700";
     ctx.lineWidth = 2;
     ctx.setLineDash([dashLen, dashGap]);
     ctx.lineDashOffset = -s.dashOffset % period;
@@ -144,48 +144,46 @@ export default function RoadRushGame({ onGameOver }: Props) {
     ctx.setLineDash([]);
     ctx.lineDashOffset = 0;
 
-    // Player car glow
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = "rgba(255,76,26,0.6)";
-    drawCar(ctx, s.playerX, H - 80, PLAYER_W, PLAYER_H, "#FF4C1A", true);
-    ctx.shadowBlur = 0;
+    // Player car (minecart)
+    drawMinecartCar(
+      ctx,
+      s.playerX,
+      H - 80,
+      PLAYER_W,
+      PLAYER_H,
+      "#3A3A3A",
+      true,
+    );
 
     // Enemy cars
     for (const e of s.enemies) {
-      drawCar(ctx, e.x, e.y, ENEMY_W, ENEMY_H, e.color, false);
+      drawMinecartCar(ctx, e.x, e.y, ENEMY_W, ENEMY_H, e.color, false);
     }
 
     // Score
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, W, 32);
-    ctx.fillStyle = "#FF4C1A";
+    ctx.fillStyle = "#FFD700";
     ctx.font = "10px 'Press Start 2P', monospace";
     ctx.textAlign = "left";
     ctx.fillText(`SCORE: ${s.score}`, 10, 22);
-    ctx.fillStyle = "rgba(255,76,26,0.6)";
+    ctx.fillStyle = "#C8A96E";
     ctx.font = "8px 'Press Start 2P', monospace";
     ctx.fillText(`SPEED: ${s.speed.toFixed(1)}x`, W - 120, 22);
 
     if (!s.alive) {
       ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#FF4C1A";
+      ctx.fillStyle = "#FFD700";
       ctx.font = "14px 'Press Start 2P', monospace";
       ctx.textAlign = "center";
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = "#FF4C1A";
       ctx.fillText("GAME OVER", W / 2, H / 2 - 20);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "#FFD700";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "10px 'Press Start 2P', monospace";
       ctx.fillText(`SCORE: ${s.score}`, W / 2, H / 2 + 10);
       ctx.textAlign = "left";
     }
   }, []);
-
-  function ROAD_COUNT_W() {
-    return ROAD_RIGHT - ROAD_LEFT;
-  }
 
   const loop = useCallback(() => {
     const cv = canvasRef.current;
@@ -203,7 +201,6 @@ export default function RoadRushGame({ onGameOver }: Props) {
     s.score = Math.floor(s.frame / 6);
     s.speed = 3 + s.frame / 400;
 
-    // Lane change
     if (s.laneChangeCooldown > 0) s.laneChangeCooldown--;
     if (s.laneChangeCooldown === 0) {
       if (s.keys.left && s.playerLane > 0) {
@@ -214,14 +211,11 @@ export default function RoadRushGame({ onGameOver }: Props) {
         s.laneChangeCooldown = 18;
       }
     }
-    // Smooth move toward lane center
     const targetX = LANE_CENTERS[s.playerLane];
     s.playerX += (targetX - s.playerX) * 0.22;
 
-    // Scroll dashes
     s.dashOffset += s.speed * 2;
 
-    // Spawn enemies
     s.spawnTimer++;
     const spawnInterval = Math.max(40, 90 - s.frame / 50);
     if (s.spawnTimer >= spawnInterval) {
@@ -235,14 +229,11 @@ export default function RoadRushGame({ onGameOver }: Props) {
       });
     }
 
-    // Move enemies
     for (const e of s.enemies) {
       e.y += s.speed * 2.5;
     }
-    // Remove off-screen
     s.enemies = s.enemies.filter((e) => e.y < H + ENEMY_H);
 
-    // Collision
     const px = s.playerX;
     const py = H - 80;
     for (const e of s.enemies) {
@@ -308,8 +299,8 @@ export default function RoadRushGame({ onGameOver }: Props) {
       height={H}
       className="rounded-lg"
       style={{
-        border: "1px solid rgba(255,76,26,0.5)",
-        boxShadow: "0 0 24px rgba(255,76,26,0.3)",
+        border: "3px solid #6B6B6B",
+        boxShadow: "none",
         maxWidth: "100%",
       }}
       tabIndex={0}

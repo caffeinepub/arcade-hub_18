@@ -11,18 +11,24 @@ export default function Leaderboard({ game }: Props) {
   const top10 = entries?.slice(0, 10) ?? [];
 
   return (
-    <div className="rounded-lg neon-border-magenta bg-card overflow-hidden">
+    <div className="mc-panel overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-secondary/20 flex items-center gap-2">
-        <Trophy
-          className="h-4 w-4"
-          style={{ color: "#F6D33B", filter: "drop-shadow(0 0 6px #F6D33B)" }}
-        />
+      <div
+        className="px-4 py-3 flex items-center gap-2"
+        style={{ borderBottom: "2px solid #1a1a1a", backgroundColor: "#222" }}
+      >
+        <Trophy className="h-4 w-4" style={{ color: "#F5C518" }} />
         <div>
-          <p className="text-[9px] font-arcade text-muted-foreground tracking-widest">
+          <p
+            className="text-[9px] font-arcade mc-text-shadow tracking-widest"
+            style={{ color: "#888" }}
+          >
             GLOBAL LEADERBOARD
           </p>
-          <h2 className="text-sm font-arcade text-secondary text-glow-magenta mt-0.5">
+          <h2
+            className="text-sm font-arcade mc-text-shadow-gold mt-0.5"
+            style={{ color: "#F5C518" }}
+          >
             TOP SCORES
           </h2>
         </div>
@@ -30,8 +36,8 @@ export default function Leaderboard({ game }: Props) {
 
       <div className="px-4 pt-3 pb-1">
         <p
-          className="text-[9px] font-arcade"
-          style={{ color: "rgba(33,212,255,0.7)" }}
+          className="text-[9px] font-arcade mc-text-shadow"
+          style={{ color: "#5D8A2C" }}
         >
           {game.title}
         </p>
@@ -43,12 +49,15 @@ export default function Leaderboard({ game }: Props) {
             className="flex items-center justify-center py-8"
             data-ocid="leaderboard.loading_state"
           >
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2
+              className="h-6 w-6 animate-spin"
+              style={{ color: "#5D8A2C" }}
+            />
           </div>
         )}
         {isError && (
           <p
-            className="text-xs text-destructive text-center py-4"
+            className="text-xs text-destructive text-center py-4 font-arcade text-[9px]"
             data-ocid="leaderboard.error_state"
           >
             Failed to load scores
@@ -56,8 +65,13 @@ export default function Leaderboard({ game }: Props) {
         )}
         {!isLoading && !isError && top10.length === 0 && (
           <div className="text-center py-8" data-ocid="leaderboard.empty_state">
-            <p className="text-xs text-muted-foreground">No scores yet.</p>
-            <p className="text-[10px] mt-1" style={{ color: "#38F26D" }}>
+            <p className="text-xs text-muted-foreground font-arcade text-[9px] mc-text-shadow">
+              No scores yet.
+            </p>
+            <p
+              className="text-[9px] mt-1 font-arcade mc-text-shadow-green"
+              style={{ color: "#5D8A2C" }}
+            >
               Be the first to play!
             </p>
           </div>
@@ -66,32 +80,36 @@ export default function Leaderboard({ game }: Props) {
           <div
             key={`${entry.player}-${i}`}
             data-ocid={`leaderboard.item.${i + 1}`}
-            className="flex items-center justify-between py-2 px-3 rounded"
+            className="flex items-center justify-between py-2 px-3"
             style={{
-              background:
+              backgroundColor:
                 i === 0
-                  ? "rgba(246,211,59,0.08)"
+                  ? "rgba(245,197,24,0.12)"
                   : i === 1
-                    ? "rgba(200,60,255,0.06)"
-                    : "rgba(33,212,255,0.04)",
-              border:
+                    ? "rgba(180,180,180,0.08)"
+                    : "rgba(255,255,255,0.04)",
+              borderLeft:
                 i === 0
-                  ? "1px solid rgba(246,211,59,0.3)"
-                  : "1px solid transparent",
+                  ? "3px solid #F5C518"
+                  : i === 1
+                    ? "3px solid #C0C0C0"
+                    : i === 2
+                      ? "3px solid #CD7F32"
+                      : "3px solid #333",
             }}
           >
             <div className="flex items-center gap-3">
               <span
-                className="font-arcade text-[10px] w-5 text-center"
+                className="font-arcade text-[10px] w-5 text-center mc-text-shadow"
                 style={{
                   color:
                     i === 0
-                      ? "#F6D33B"
+                      ? "#F5C518"
                       : i === 1
                         ? "#C0C0C0"
                         : i === 2
                           ? "#CD7F32"
-                          : "#9AA6B2",
+                          : "#7a7a7a",
                 }}
               >
                 #{i + 1}
@@ -101,11 +119,8 @@ export default function Leaderboard({ game }: Props) {
               </span>
             </div>
             <span
-              className="font-arcade text-[10px]"
-              style={{
-                color: "#F6D33B",
-                textShadow: "0 0 8px rgba(246,211,59,0.6)",
-              }}
+              className="font-arcade text-[10px] mc-text-shadow-gold"
+              style={{ color: "#F5C518" }}
             >
               {Number(entry.score).toLocaleString()}
             </span>

@@ -24,6 +24,36 @@ function rndFood(snake: Pt[]): Pt {
   return p;
 }
 
+function drawBlock(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  pad = 1,
+) {
+  const bx = x + pad;
+  const by = y + pad;
+  const bs = size - pad * 2;
+  ctx.fillStyle = color;
+  ctx.fillRect(bx, by, bs, bs);
+  // light top-left
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(bx, by + bs);
+  ctx.lineTo(bx, by);
+  ctx.lineTo(bx + bs, by);
+  ctx.stroke();
+  // dark bottom-right
+  ctx.strokeStyle = "rgba(0,0,0,0.4)";
+  ctx.beginPath();
+  ctx.moveTo(bx + bs, by);
+  ctx.lineTo(bx + bs, by + bs);
+  ctx.lineTo(bx, by + bs);
+  ctx.stroke();
+}
+
 export default function SnakeGame({ onGameOver }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef({
@@ -49,11 +79,12 @@ export default function SnakeGame({ onGameOver }: Props) {
     if (!ctx) return;
     const g = gameRef.current;
 
-    ctx.fillStyle = "#080d14";
+    // Dark cave background
+    ctx.fillStyle = "#1A1209";
     ctx.fillRect(0, 0, W, H);
 
-    // subtle grid
-    ctx.strokeStyle = "rgba(33,212,255,0.04)";
+    // Subtle dirt-tone grid
+    ctx.strokeStyle = "#2A1E0D";
     ctx.lineWidth = 0.5;
     for (let x = 0; x <= COLS; x++) {
       ctx.beginPath();
@@ -68,38 +99,44 @@ export default function SnakeGame({ onGameOver }: Props) {
       ctx.stroke();
     }
 
-    // food
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = "#38F26D";
-    ctx.fillStyle = "#38F26D";
-    ctx.fillRect(g.food.x * CELL + 3, g.food.y * CELL + 3, CELL - 6, CELL - 6);
-    ctx.shadowBlur = 0;
+    // Food — diamond block (cyan)
+    drawBlock(ctx, g.food.x * CELL, g.food.y * CELL, CELL, "#4FE0C8", 3);
+    // small cross on diamond
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillRect(
+      g.food.x * CELL + CELL / 2 - 1,
+      g.food.y * CELL + 4,
+      2,
+      CELL - 8,
+    );
+    ctx.fillRect(
+      g.food.x * CELL + 4,
+      g.food.y * CELL + CELL / 2 - 1,
+      CELL - 8,
+      2,
+    );
 
-    // snake
+    // Snake — grass green blocks
     g.snake.forEach((seg, i) => {
-      const alpha = i === 0 ? 1 : Math.max(0.3, 1 - i * 0.03);
-      ctx.shadowBlur = i === 0 ? 14 : 6;
-      ctx.shadowColor = `rgba(33,212,255,${alpha})`;
-      ctx.fillStyle = i === 0 ? "#21D4FF" : `rgba(22,199,255,${alpha})`;
-      ctx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
+      const color = i === 0 ? "#6FAA46" : "#5D8A3C";
+      drawBlock(ctx, seg.x * CELL, seg.y * CELL, CELL, color, 1);
     });
-    ctx.shadowBlur = 0;
 
-    // score overlay
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    // Score overlay
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, W, 30);
-    ctx.fillStyle = "#21D4FF";
+    ctx.fillStyle = "#FFD700";
     ctx.font = "10px 'Press Start 2P', monospace";
     ctx.fillText(`SCORE: ${g.score}`, 8, 20);
 
     if (!g.alive) {
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#C83CFF";
+      ctx.fillStyle = "#FFD700";
       ctx.font = "14px 'Press Start 2P', monospace";
       ctx.textAlign = "center";
       ctx.fillText("GAME OVER", W / 2, H / 2 - 10);
-      ctx.fillStyle = "#F6D33B";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "10px 'Press Start 2P', monospace";
       ctx.fillText(`SCORE: ${g.score}`, W / 2, H / 2 + 15);
       ctx.textAlign = "left";
@@ -174,8 +211,8 @@ export default function SnakeGame({ onGameOver }: Props) {
       height={H}
       className="rounded-lg"
       style={{
-        border: "1px solid rgba(33,212,255,0.5)",
-        boxShadow: "0 0 20px rgba(33,212,255,0.3)",
+        border: "3px solid #5D8A3C",
+        boxShadow: "none",
       }}
       tabIndex={0}
     />

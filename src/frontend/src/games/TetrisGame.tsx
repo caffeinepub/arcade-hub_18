@@ -14,48 +14,48 @@ const TICK_START = 600;
 type Board = (string | null)[][];
 
 const PIECES: { shape: number[][]; color: string }[] = [
-  { shape: [[1, 1, 1, 1]], color: "#21D4FF" },
+  { shape: [[1, 1, 1, 1]], color: "#4FE0C8" }, // I – diamond blue
   {
     shape: [
       [1, 1],
       [1, 1],
     ],
-    color: "#F6D33B",
+    color: "#FFD700", // O – gold
   },
   {
     shape: [
       [0, 1, 0],
       [1, 1, 1],
     ],
-    color: "#C83CFF",
+    color: "#C8A96E", // T – wood plank
   },
   {
     shape: [
       [0, 1, 1],
       [1, 1, 0],
     ],
-    color: "#38F26D",
+    color: "#5D8A3C", // S – grass green
   },
   {
     shape: [
       [1, 1, 0],
       [0, 1, 1],
     ],
-    color: "#F59E0B",
+    color: "#CC3333", // Z – TNT red
   },
   {
     shape: [
       [1, 0, 0],
       [1, 1, 1],
     ],
-    color: "#4A90E2",
+    color: "#8B5E3C", // L – dirt brown
   },
   {
     shape: [
       [0, 0, 1],
       [1, 1, 1],
     ],
-    color: "#FF6B6B",
+    color: "#8A8A8A", // J – stone
   },
 ];
 
@@ -109,6 +109,31 @@ function collides(
   return false;
 }
 
+function drawMinecraftCell(
+  ctx: CanvasRenderingContext2D,
+  px: number,
+  py: number,
+  color: string,
+) {
+  ctx.fillStyle = color;
+  ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
+  // top+left lighter
+  ctx.strokeStyle = "rgba(255,255,255,0.35)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px + 1, py + CELL - 1);
+  ctx.lineTo(px + 1, py + 1);
+  ctx.lineTo(px + CELL - 1, py + 1);
+  ctx.stroke();
+  // right+bottom darker
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.beginPath();
+  ctx.moveTo(px + CELL - 1, py + 1);
+  ctx.lineTo(px + CELL - 1, py + CELL - 1);
+  ctx.lineTo(px + 1, py + CELL - 1);
+  ctx.stroke();
+}
+
 export default function TetrisGame({ onGameOver }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({
@@ -129,11 +154,12 @@ export default function TetrisGame({ onGameOver }: Props) {
     if (!ctx) return;
     const { board, current, score, lines, alive } = stateRef.current;
 
-    ctx.fillStyle = "#08101a";
+    // Dark stone background
+    ctx.fillStyle = "#141414";
     ctx.fillRect(0, 0, CW, CH);
 
-    // grid
-    ctx.strokeStyle = "rgba(33,212,255,0.06)";
+    // Grid
+    ctx.strokeStyle = "rgba(80,80,80,0.15)";
     ctx.lineWidth = 0.5;
     for (let c = 0; c <= COLS; c++) {
       ctx.beginPath();
@@ -148,53 +174,45 @@ export default function TetrisGame({ onGameOver }: Props) {
       ctx.stroke();
     }
 
-    // board
+    // Board
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const col = board[r][c];
         if (col) {
-          ctx.fillStyle = col;
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = col;
-          ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
-          ctx.shadowBlur = 0;
+          drawMinecraftCell(ctx, c * CELL, r * CELL, col);
         }
       }
     }
 
-    // current piece
+    // Current piece
     if (alive && current) {
       current.shape.forEach((row, r) => {
         row.forEach((v, c) => {
           if (!v) return;
           const px = (current.x + c) * CELL;
           const py = (current.y + r) * CELL;
-          ctx.fillStyle = current.color;
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = current.color;
-          ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
-          ctx.shadowBlur = 0;
+          drawMinecraftCell(ctx, px, py, current.color);
         });
       });
     }
 
     // HUD
-    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
     ctx.fillRect(0, 0, CW, 32);
     ctx.font = "8px 'Press Start 2P', monospace";
-    ctx.fillStyle = "#21D4FF";
+    ctx.fillStyle = "#FFD700";
     ctx.fillText(`${score}`, 6, 14);
-    ctx.fillStyle = "#9AA6B2";
+    ctx.fillStyle = "#C8A96E";
     ctx.fillText(`L:${lines}`, 6, 26);
 
     if (!alive) {
       ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, CW, CH);
-      ctx.fillStyle = "#C83CFF";
+      ctx.fillStyle = "#FFD700";
       ctx.font = "14px 'Press Start 2P', monospace";
       ctx.textAlign = "center";
       ctx.fillText("GAME OVER", CW / 2, CH / 2 - 12);
-      ctx.fillStyle = "#F6D33B";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "9px 'Press Start 2P', monospace";
       ctx.fillText(`SCORE: ${score}`, CW / 2, CH / 2 + 10);
       ctx.textAlign = "left";
@@ -290,8 +308,8 @@ export default function TetrisGame({ onGameOver }: Props) {
       height={CH}
       className="rounded-lg"
       style={{
-        border: "1px solid rgba(200,60,255,0.5)",
-        boxShadow: "0 0 20px rgba(200,60,255,0.3)",
+        border: "3px solid #7A7A7A",
+        boxShadow: "none",
       }}
       tabIndex={0}
     />

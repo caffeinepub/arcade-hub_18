@@ -7,6 +7,7 @@ export interface GameData {
   accentColor: string;
   controls: string;
   category: string;
+  thumbnail: string;
 }
 
 export const GAMES: GameData[] = [
@@ -16,30 +17,33 @@ export const GAMES: GameData[] = [
     description:
       "Guide the snake to eat food and grow. Avoid walls and yourself!",
     rating: 4.8,
-    gradient: "linear-gradient(135deg, #0a2a2a 0%, #0e3a3a 50%, #0a1f1f 100%)",
-    accentColor: "#21D4FF",
+    gradient: "linear-gradient(135deg, #1a2e0a 0%, #2a4a10 50%, #0e1a05 100%)",
+    accentColor: "#4CAF50",
     controls: "Arrow Keys to move",
     category: "CLASSIC",
+    thumbnail: "/assets/generated/game-snake.dim_400x240.jpg",
   },
   {
     id: "tetris",
     title: "TETRIS",
     description: "Stack falling blocks and clear lines to score big!",
     rating: 4.9,
-    gradient: "linear-gradient(135deg, #1a0a2a 0%, #2a0a3a 50%, #1a0a20 100%)",
-    accentColor: "#C83CFF",
+    gradient: "linear-gradient(135deg, #0a1a2e 0%, #0a2a3e 50%, #051018 100%)",
+    accentColor: "#4FC3F7",
     controls: "Arrows to move/rotate",
     category: "PUZZLE",
+    thumbnail: "/assets/generated/game-tetris.dim_400x240.jpg",
   },
   {
     id: "memory-match",
     title: "MEMORY MATCH",
     description: "Flip cards to find matching pairs. Test your memory!",
     rating: 4.6,
-    gradient: "linear-gradient(135deg, #0a2a10 0%, #0a3a18 50%, #051a0a 100%)",
-    accentColor: "#38F26D",
+    gradient: "linear-gradient(135deg, #2e1a0a 0%, #3e2a10 50%, #1a0e05 100%)",
+    accentColor: "#F5C518",
     controls: "Click cards to flip",
     category: "BRAIN",
+    thumbnail: "/assets/generated/game-memory-match.dim_400x240.jpg",
   },
   {
     id: "flappy-bird",
@@ -47,10 +51,11 @@ export const GAMES: GameData[] = [
     description:
       "Tap to flap and navigate through the pipes. How far can you go?",
     rating: 4.7,
-    gradient: "linear-gradient(135deg, #2a1a00 0%, #3a2a00 50%, #1a1000 100%)",
-    accentColor: "#F59E0B",
+    gradient: "linear-gradient(135deg, #1a2e3e 0%, #2a3e50 50%, #0e1a28 100%)",
+    accentColor: "#87CEEB",
     controls: "Space / Click to flap",
     category: "ARCADE",
+    thumbnail: "/assets/generated/game-flappy-bird.dim_400x240.jpg",
   },
   {
     id: "road-rush",
@@ -58,10 +63,11 @@ export const GAMES: GameData[] = [
     description:
       "Dodge oncoming traffic on a high-speed highway. How long can you survive?",
     rating: 4.7,
-    gradient: "linear-gradient(135deg, #2a0a0a 0%, #3a1000 50%, #1a0800 100%)",
-    accentColor: "#FF4C1A",
+    gradient: "linear-gradient(135deg, #2e0a0a 0%, #3e1010 50%, #1a0505 100%)",
+    accentColor: "#E53935",
     controls: "Arrow Left/Right to dodge",
     category: "RACING",
+    thumbnail: "/assets/generated/game-road-rush.dim_400x240.jpg",
   },
   {
     id: "speed-drift",
@@ -69,10 +75,11 @@ export const GAMES: GameData[] = [
     description:
       "Race through a winding track, drift around corners and beat your high score!",
     rating: 4.5,
-    gradient: "linear-gradient(135deg, #0a0a2a 0%, #0a1040 50%, #05081a 100%)",
-    accentColor: "#00C8FF",
+    gradient: "linear-gradient(135deg, #0a0a2e 0%, #0a1040 50%, #050818 100%)",
+    accentColor: "#1B5E9E",
     controls: "Left/Right arrows to steer",
     category: "RACING",
+    thumbnail: "/assets/generated/game-speed-drift.dim_400x240.jpg",
   },
   {
     id: "space-shooter",
@@ -80,10 +87,11 @@ export const GAMES: GameData[] = [
     description:
       "Blast enemy ships before they reach you! Survive waves of alien invaders.",
     rating: 4.8,
-    gradient: "linear-gradient(135deg, #0a0a1a 0%, #0a0a2e 50%, #050510 100%)",
-    accentColor: "#FF3C6E",
+    gradient: "linear-gradient(135deg, #0a0a1e 0%, #150a28 50%, #08050e 100%)",
+    accentColor: "#9C27B0",
     controls: "Arrow Left/Right to move, Space to shoot",
     category: "SHOOTER",
+    thumbnail: "/assets/generated/game-space-shooter.dim_400x240.jpg",
   },
   {
     id: "street-racer",
@@ -91,9 +99,34 @@ export const GAMES: GameData[] = [
     description:
       "Bet your cash, race 3 rivals, and unlock faster cars. Can you go from rags to riches?",
     rating: 4.8,
-    gradient: "linear-gradient(135deg, #1a0f00 0%, #2a1800 50%, #1a0a00 100%)",
-    accentColor: "#F5A623",
+    gradient: "linear-gradient(135deg, #2e1a00 0%, #3e2800 50%, #1a0e00 100%)",
+    accentColor: "#FFD700",
     controls: "Arrow Keys to steer",
     category: "RACING",
+    thumbnail: "/assets/generated/game-street-racer.dim_400x240.jpg",
+  },
+  {
+    id: "block-miner",
+    title: "BLOCK MINER",
+    description:
+      "Mine diamonds, gold and rare ores before your columns overflow! Click fast or get buried!",
+    rating: 4.7,
+    gradient: "linear-gradient(135deg, #1a0e05 0%, #2e1a08 50%, #0e0803 100%)",
+    accentColor: "#8B6914",
+    controls: "Click blocks to mine them",
+    category: "MINECRAFT",
+    thumbnail: "/assets/generated/game-block-miner.dim_400x240.jpg",
+  },
+  {
+    id: "geometry-dash",
+    title: "GEOMETRY DASH",
+    description:
+      "Jump over spikes and obstacles in this Minecraft rhythm runner! Tap to survive!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #1a0a2e 0%, #2e1a40 50%, #0e0818 100%)",
+    accentColor: "#9B59B6",
+    controls: "Space / Click to jump",
+    category: "PLATFORMER",
+    thumbnail: "/assets/generated/game-geometry-dash.dim_400x240.jpg",
   },
 ];

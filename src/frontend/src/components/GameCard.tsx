@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import type { GameData } from "@/data/games";
 import { Play, Star } from "lucide-react";
 
@@ -14,29 +13,19 @@ export default function GameCard({ game, onPlay, index }: Props) {
   return (
     <div
       data-ocid={`games.item.${index}`}
-      className="group relative rounded-lg overflow-hidden neon-border-cyan bg-card flex flex-col transition-transform hover:-translate-y-1 hover:shadow-neon-cyan duration-300"
+      className="group relative overflow-hidden mc-panel flex flex-col transition-transform hover:-translate-y-1 duration-200"
     >
-      {/* Thumbnail */}
-      <div
-        className="relative h-36 flex items-center justify-center overflow-hidden scanlines"
-        style={{ background: game.gradient }}
-      >
-        <div
-          className="font-arcade text-2xl"
-          style={{
-            color: game.accentColor,
-            textShadow: `0 0 20px ${game.accentColor}`,
-          }}
-        >
-          {game.title.split(" ")[0].charAt(0)}
-        </div>
+      {/* Thumbnail image */}
+      <div className="relative h-36 overflow-hidden">
+        <img
+          src={game.thumbnail}
+          alt={game.title}
+          className="w-full h-full object-cover"
+        />
+        {/* Category badge */}
         <span
-          className="absolute top-2 left-2 font-arcade text-[8px] px-2 py-1 rounded"
-          style={{
-            background: `${game.accentColor}22`,
-            border: `1px solid ${game.accentColor}66`,
-            color: game.accentColor,
-          }}
+          className="absolute top-2 left-2 font-arcade text-[8px] px-2 py-1 mc-slot"
+          style={{ color: game.accentColor }}
         >
           {game.category}
         </span>
@@ -45,11 +34,8 @@ export default function GameCard({ game, onPlay, index }: Props) {
       {/* Content */}
       <div className="p-4 flex flex-col gap-2 flex-1">
         <h3
-          className="font-arcade text-[11px] tracking-wider"
-          style={{
-            color: game.accentColor,
-            textShadow: `0 0 8px ${game.accentColor}66`,
-          }}
+          className="font-arcade text-[11px] tracking-wider mc-text-shadow"
+          style={{ color: game.accentColor }}
         >
           {game.title}
         </h3>
@@ -63,9 +49,9 @@ export default function GameCard({ game, onPlay, index }: Props) {
             <Star
               key={key}
               className="h-3 w-3"
-              fill={i < Math.floor(game.rating) ? "#F6D33B" : "transparent"}
+              fill={i < Math.floor(game.rating) ? "#F5C518" : "transparent"}
               style={{
-                color: i < Math.floor(game.rating) ? "#F6D33B" : "#4a5568",
+                color: i < Math.floor(game.rating) ? "#F5C518" : "#4a4a4a",
               }}
             />
           ))}
@@ -74,21 +60,15 @@ export default function GameCard({ game, onPlay, index }: Props) {
           </span>
         </div>
 
-        <Button
+        <button
+          type="button"
           onClick={() => onPlay(game)}
           data-ocid={`games.play_button.${index}`}
-          size="sm"
-          className="mt-2 w-full font-arcade text-[9px] tracking-wider"
-          style={{
-            background: `${game.accentColor}22`,
-            border: `1px solid ${game.accentColor}88`,
-            color: game.accentColor,
-            boxShadow: `0 0 8px ${game.accentColor}33`,
-          }}
+          className="mt-2 w-full font-arcade text-[9px] tracking-wider py-2 px-4 mc-btn flex items-center justify-center gap-2"
         >
-          <Play className="h-3 w-3 mr-1" />
+          <Play className="h-3 w-3" />
           PLAY NOW
-        </Button>
+        </button>
       </div>
     </div>
   );

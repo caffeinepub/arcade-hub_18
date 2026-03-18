@@ -4,7 +4,16 @@ interface Props {
   onGameOver: (score: number) => void;
 }
 
-const SYMBOLS = ["🌟", "🎮", "👾", "🚀", "💎", "⚡", "🔥", "🎯"];
+const SYMBOLS = [
+  "\u26CF",
+  "\u2694\uFE0F",
+  "\uD83E\uDEB5",
+  "\uD83D\uDC8E",
+  "\uD83E\uDEA8",
+  "\uD83C\uDF3F",
+  "\uD83E\uDDF1",
+  "\uD83C\uDF4E",
+];
 const TOTAL_PAIRS = 8;
 
 interface Card {
@@ -88,19 +97,16 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
     <div className="flex flex-col items-center gap-4">
       {/* Score bar */}
       <div
-        className="w-full flex items-center justify-between px-4 py-2 rounded-lg"
+        className="w-full flex items-center justify-between px-4 py-2 rounded"
         style={{
-          background: "#0E1520",
-          border: "1px solid rgba(56,242,109,0.3)",
+          background: "#2D1E0A",
+          border: "1px solid #8B5E3C",
         }}
       >
-        <span
-          className="font-arcade text-[9px]"
-          style={{ color: "#38F26D", textShadow: "0 0 8px #38F26D" }}
-        >
+        <span className="font-arcade text-[9px]" style={{ color: "#FFD700" }}>
           SCORE: {score}
         </span>
-        <span className="font-arcade text-[9px]" style={{ color: "#F6D33B" }}>
+        <span className="font-arcade text-[9px]" style={{ color: "#FFD700" }}>
           {matches}/{TOTAL_PAIRS} PAIRS
         </span>
       </div>
@@ -113,29 +119,25 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
             type="button"
             onClick={() => handleFlip(card.id)}
             data-ocid={`memory.card.${i + 1}`}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg font-arcade text-2xl flex items-center justify-center transition-all duration-300 cursor-pointer"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded font-arcade text-2xl flex items-center justify-center transition-all duration-300 cursor-pointer"
             style={{
               background: card.matched
-                ? "rgba(56,242,109,0.15)"
+                ? "#3A5A2A"
                 : card.flipped
-                  ? "rgba(33,212,255,0.15)"
-                  : "#0E1520",
+                  ? "#2A3A22"
+                  : "#5C4A3A",
               border: card.matched
-                ? "1px solid rgba(56,242,109,0.7)"
+                ? "2px solid #6FAA46"
                 : card.flipped
-                  ? "1px solid rgba(33,212,255,0.7)"
-                  : "1px solid rgba(255,255,255,0.08)",
-              boxShadow: card.matched
-                ? "0 0 12px rgba(56,242,109,0.4)"
-                : card.flipped
-                  ? "0 0 12px rgba(33,212,255,0.4)"
-                  : "none",
+                  ? "2px solid #5D8A3C"
+                  : "2px solid #3A2A1A",
+              boxShadow: card.matched ? "0 0 8px #5D8A3C" : "none",
             }}
           >
             {card.flipped || card.matched ? (
               card.symbol
             ) : (
-              <span style={{ color: "rgba(255,255,255,0.15)" }}>❓</span>
+              <span style={{ color: "#8B7355", fontSize: "1.2rem" }}>?</span>
             )}
           </button>
         ))}
@@ -143,15 +145,12 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
 
       {matches === TOTAL_PAIRS && (
         <div className="text-center mt-2">
-          <p
-            className="font-arcade text-sm"
-            style={{ color: "#38F26D", textShadow: "0 0 15px #38F26D" }}
-          >
-            YOU WIN! 🎉
+          <p className="font-arcade text-sm" style={{ color: "#5D8A3C" }}>
+            YOU WIN! 🏆
           </p>
           <p
             className="font-arcade text-[9px] mt-2"
-            style={{ color: "#F6D33B" }}
+            style={{ color: "#FFD700" }}
           >
             FINAL SCORE: {score}
           </p>

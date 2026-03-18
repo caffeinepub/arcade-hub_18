@@ -108,26 +108,40 @@ function angleToPos(angle: number) {
 
 function drawTrack(ctx: CanvasRenderingContext2D) {
   // Background
-  ctx.fillStyle = "#0E1520";
+  ctx.fillStyle = "#1A1209"; // dark earthy
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  // Grass infield (inner oval)
+  ctx.fillStyle = "#3D6B2A";
+  ctx.beginPath();
+  ctx.ellipse(
+    TRACK_CX,
+    TRACK_CY,
+    TRACK_RX - 24,
+    TRACK_RY - 24,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.fill();
 
   // Outer track border
   ctx.save();
-  ctx.strokeStyle = "#555";
+  ctx.strokeStyle = "#7A7A7A"; // stone border
   ctx.lineWidth = 48;
   ctx.beginPath();
   ctx.ellipse(TRACK_CX, TRACK_CY, TRACK_RX, TRACK_RY, 0, 0, Math.PI * 2);
   ctx.stroke();
 
   // Road surface
-  ctx.strokeStyle = "#333";
+  ctx.strokeStyle = "#5C4A3A"; // dirt road surface
   ctx.lineWidth = 40;
   ctx.beginPath();
   ctx.ellipse(TRACK_CX, TRACK_CY, TRACK_RX, TRACK_RY, 0, 0, Math.PI * 2);
   ctx.stroke();
 
   // Center lane dashes
-  ctx.strokeStyle = "rgba(255,255,255,0.25)";
+  ctx.strokeStyle = "rgba(255,215,0,0.4)"; // gold rails
   ctx.lineWidth = 1;
   ctx.setLineDash([10, 14]);
   ctx.beginPath();
@@ -183,11 +197,8 @@ function drawCar(
 
   // Tail glow for player
   if (isPlayer) {
-    ctx.shadowColor = car.color;
-    ctx.shadowBlur = 12;
     ctx.fillStyle = car.color;
     ctx.fillRect(-w / 2, -h / 2, w, h);
-    ctx.shadowBlur = 0;
   }
 
   ctx.restore();

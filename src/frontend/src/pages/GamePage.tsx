@@ -4,7 +4,9 @@ import Leaderboard from "@/components/Leaderboard";
 import ScoreModal from "@/components/ScoreModal";
 import { Button } from "@/components/ui/button";
 import type { GameData } from "@/data/games";
+import BlockMinerGame from "@/games/BlockMinerGame";
 import FlappyBirdGame from "@/games/FlappyBirdGame";
+import GeometryDashGame from "@/games/GeometryDashGame";
 import MemoryMatchGame from "@/games/MemoryMatchGame";
 import RoadRushGame from "@/games/RoadRushGame";
 import SnakeGame from "@/games/SnakeGame";
@@ -111,6 +113,12 @@ export default function GamePage({ game, onBack }: Props) {
                 )}
                 {game.id === "street-racer" && (
                   <StreetRacerGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "block-miner" && (
+                  <BlockMinerGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "geometry-dash" && (
+                  <GeometryDashGame key={gameKey} onGameOver={handleGameOver} />
                 )}
               </div>
 
