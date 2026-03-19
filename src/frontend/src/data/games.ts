@@ -129,4 +129,16 @@ export const GAMES: GameData[] = [
     category: "PLATFORMER",
     thumbnail: "/assets/generated/game-geometry-dash.dim_400x240.jpg",
   },
+  {
+    id: "block-blast",
+    title: "BLOCK BLAST",
+    description:
+      "Place blocks to fill rows and columns. Clear as many as you can before you run out of space!",
+    rating: 4.8,
+    gradient: "linear-gradient(135deg, #0a1a0a 0%, #1a2e0a 50%, #050e03 100%)",
+    accentColor: "#5D8A2C",
+    controls: "Click piece to select, click grid to place",
+    category: "PUZZLE",
+    thumbnail: "/assets/generated/game-block-blast.dim_400x240.jpg",
+  },
 ];

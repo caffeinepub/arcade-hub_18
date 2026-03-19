@@ -11,8 +11,16 @@ export interface ScoreEntry {
     player: string;
     score: bigint;
 }
+export interface ChatMessage {
+    id: bigint;
+    text: string;
+    sender: string;
+    timestamp: bigint;
+}
 export interface backendInterface {
     getLeaderboard(gameId: string): Promise<Array<ScoreEntry>>;
+    getMessages(): Promise<Array<ChatMessage>>;
     getPersonalBest(gameId: string, player: string): Promise<bigint | null>;
+    sendMessage(sender: string, text: string): Promise<bigint>;
     submitScore(gameId: string, player: string, score: bigint): Promise<void>;
 }

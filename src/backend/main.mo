@@ -1,10 +1,15 @@
-import Text "mo:core/Text";
-import Array "mo:core/Array";
 import Map "mo:core/Map";
+import Nat "mo:core/Nat";
+import Text "mo:core/Text";
+import Time "mo:core/Time";
 import Order "mo:core/Order";
+import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
 
+
+
 actor {
+  // --- Types ---
   type ScoreEntry = {
     player : Text;
     score : Nat;
@@ -16,8 +21,19 @@ actor {
     };
   };
 
-  let highScores = Map.empty<Text, Map.Map<Text, ScoreEntry>>();
+  type ChatMessage = {
+    id : Nat;
+    sender : Text;
+    text : Text;
+    timestamp : Int;
+  };
 
+  let highScores = Map.empty<Text, Map.Map<Text, ScoreEntry>>();
+  var chatMessages : [ChatMessage] = [];
+  var nextMessageId = 1;
+  let maxMessages = 200;
+
+  // --- Scoreboard Functions ---
   public shared ({ caller }) func submitScore(gameId : Text, player : Text, score : Nat) : async () {
     if (player.size() == 0) {
       Runtime.trap("Player name cannot be empty");
@@ -63,5 +79,34 @@ actor {
         };
       };
     };
+  };
+
+  // --- Chat Functions ---
+  public shared ({ caller }) func sendMessage(sender : Text, text : Text) : async Nat {
+    if (sender.size() == 0 or text.size() == 0) {
+      Runtime.trap("Sender and message cannot be empty");
+    };
+
+    let newMessage : ChatMessage = {
+      id = nextMessageId;
+      sender;
+      text;
+      timestamp = Time.now();
+    };
+
+    let tempMessages = [newMessage].concat(chatMessages);
+
+    chatMessages := if (tempMessages.size() > maxMessages) {
+      tempMessages.sliceToArray(0, maxMessages);
+    } else {
+      tempMessages;
+    };
+
+    nextMessageId += 1;
+    newMessage.id;
+  };
+
+  public query ({ caller }) func getMessages() : async [ChatMessage] {
+    chatMessages;
   };
 };

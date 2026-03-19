@@ -4,6 +4,7 @@ import Leaderboard from "@/components/Leaderboard";
 import ScoreModal from "@/components/ScoreModal";
 import { Button } from "@/components/ui/button";
 import type { GameData } from "@/data/games";
+import BlockBlastGame from "@/games/BlockBlastGame";
 import BlockMinerGame from "@/games/BlockMinerGame";
 import FlappyBirdGame from "@/games/FlappyBirdGame";
 import GeometryDashGame from "@/games/GeometryDashGame";
@@ -14,8 +15,8 @@ import SpaceShooterGame from "@/games/SpaceShooterGame";
 import SpeedDriftGame from "@/games/SpeedDriftGame";
 import StreetRacerGame from "@/games/StreetRacerGame";
 import TetrisGame from "@/games/TetrisGame";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   game: GameData;
@@ -27,6 +28,25 @@ export default function GamePage({ game, onBack }: Props) {
   const [gameOver, setGameOver] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      gameContainerRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleGameOver = (score: number) => {
     setFinalScore(score);
@@ -76,6 +96,7 @@ export default function GamePage({ game, onBack }: Props) {
           {/* Game area */}
           <div className="flex-1">
             <div
+              ref={gameContainerRef}
               className="rounded-xl p-4 relative"
               style={{
                 background: "#0E1520",
@@ -83,6 +104,27 @@ export default function GamePage({ game, onBack }: Props) {
                 boxShadow: `0 0 20px ${game.accentColor}22`,
               }}
             >
+              {/* Fullscreen button */}
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                data-ocid="game.toggle"
+                title={isFullscreen ? "EXIT" : "FULLSCREEN"}
+                className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded font-arcade text-[8px] tracking-wider transition-all hover:scale-105"
+                style={{
+                  background: `${game.accentColor}22`,
+                  border: `1px solid ${game.accentColor}66`,
+                  color: game.accentColor,
+                }}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3 w-3" />
+                ) : (
+                  <Maximize2 className="h-3 w-3" />
+                )}
+                <span>{isFullscreen ? "EXIT" : "FULLSCREEN"}</span>
+              </button>
+
               {/* Controls hint */}
               <p className="font-arcade text-[8px] text-muted-foreground mb-3 text-center tracking-widest">
                 🎮 {game.controls.toUpperCase()}
@@ -119,6 +161,9 @@ export default function GamePage({ game, onBack }: Props) {
                 )}
                 {game.id === "geometry-dash" && (
                   <GeometryDashGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "block-blast" && (
+                  <BlockBlastGame key={gameKey} onGameOver={handleGameOver} />
                 )}
               </div>
 

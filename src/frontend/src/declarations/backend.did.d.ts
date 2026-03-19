@@ -10,10 +10,18 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface ChatMessage {
+  'id' : bigint,
+  'text' : string,
+  'sender' : string,
+  'timestamp' : bigint,
+}
 export interface ScoreEntry { 'player' : string, 'score' : bigint }
 export interface _SERVICE {
   'getLeaderboard' : ActorMethod<[string], Array<ScoreEntry>>,
+  'getMessages' : ActorMethod<[], Array<ChatMessage>>,
   'getPersonalBest' : ActorMethod<[string, string], [] | [bigint]>,
+  'sendMessage' : ActorMethod<[string, string], bigint>,
   'submitScore' : ActorMethod<[string, string, bigint], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

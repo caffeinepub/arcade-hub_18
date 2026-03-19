@@ -1,23 +1,31 @@
 # Arcade Hub
 
 ## Current State
-Arcade Hub has 9 games. Each game has a thumbnail in games.ts and is rendered in GamePage.tsx.
+Arcade Hub is a Minecraft-themed web arcade with games, leaderboard, live chat, and header buttons. All styling uses hardcoded Minecraft-style CSS variables (dark stone, grass green, dirt brown) in index.css and inline styles throughout components.
 
 ## Requested Changes (Diff)
 
 ### Add
-- GeometryDashGame.tsx: rhythm-based side-scroller. Cube auto-runs right, Space/Click to jump over spikes. Score = distance. Minecraft-themed: grass-block hero, stone/lava spike obstacles, increasing speed over time.
-- Entry in games.ts for geometry-dash
-- Thumbnail image
+- ThemeContext (React context + provider) with a `theme` state and `setTheme` function, persisted to localStorage
+- 4 themes:
+  - **Minecraft** (default): current dark stone/grass green aesthetic
+  - **Neon Arcade**: dark background with neon cyan, magenta, and electric purple glows
+  - **Retro Pixel**: black background, bright red/yellow/white pixel art style
+  - **Space**: deep navy/dark blue background with starfield texture, blue/violet accents
+- Theme switcher UI: a small palette/paint icon button in the Header (right side, next to LOGIN), opens a compact dropdown with the 4 theme names
+- Each theme overrides CSS custom properties (--background, --foreground, --primary, --card, etc.) and the .mc-border, .mc-panel, .mc-btn, .mc-grass-border-bottom border/bg colors via data-theme attribute on <html> or <body>
 
 ### Modify
-- GamePage.tsx: add geometry-dash rendering case
+- App.tsx: wrap AppContent in ThemeProvider
+- Header.tsx: add theme switcher button
+- index.css: add [data-theme="neon"], [data-theme="retro"], [data-theme="space"] CSS blocks that override variables and utility classes
 
 ### Remove
-- Nothing
+- Nothing removed
 
 ## Implementation Plan
-1. Generate Geometry Dash thumbnail
-2. Create GeometryDashGame.tsx (canvas, auto-scroll, jump, obstacles, score)
-3. Add entry to games.ts
-4. Wire up in GamePage.tsx
+1. Create src/frontend/src/contexts/ThemeContext.tsx with ThemeProvider and useTheme hook; persist to localStorage
+2. Update index.css to add theme-specific variable overrides and mc-* class overrides per data-theme
+3. Update App.tsx to wrap with ThemeProvider and apply data-theme to document.documentElement
+4. Update Header.tsx to add a palette icon button + dropdown for theme selection
+5. Validate and build

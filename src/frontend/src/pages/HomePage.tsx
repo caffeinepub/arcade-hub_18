@@ -10,14 +10,15 @@ import { useState } from "react";
 
 interface Props {
   onPlayGame: (game: GameData) => void;
+  onNavClick?: (section: string) => void;
 }
 
-export default function HomePage({ onPlayGame }: Props) {
+export default function HomePage({ onPlayGame, onNavClick }: Props) {
   const [leaderboardGame, setLeaderboardGame] = useState(GAMES[0]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Header onNavClick={onNavClick} />
 
       <main className="flex-1">
         {/* Hero */}

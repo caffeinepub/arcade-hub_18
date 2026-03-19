@@ -12,14 +12,22 @@ export const ScoreEntry = IDL.Record({
   'player' : IDL.Text,
   'score' : IDL.Nat,
 });
+export const ChatMessage = IDL.Record({
+  'id' : IDL.Nat,
+  'text' : IDL.Text,
+  'sender' : IDL.Text,
+  'timestamp' : IDL.Int,
+});
 
 export const idlService = IDL.Service({
   'getLeaderboard' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
+  'getMessages' : IDL.Func([], [IDL.Vec(ChatMessage)], ['query']),
   'getPersonalBest' : IDL.Func(
       [IDL.Text, IDL.Text],
       [IDL.Opt(IDL.Nat)],
       ['query'],
     ),
+  'sendMessage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
   'submitScore' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
 });
 
@@ -27,14 +35,22 @@ export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const ScoreEntry = IDL.Record({ 'player' : IDL.Text, 'score' : IDL.Nat });
+  const ChatMessage = IDL.Record({
+    'id' : IDL.Nat,
+    'text' : IDL.Text,
+    'sender' : IDL.Text,
+    'timestamp' : IDL.Int,
+  });
   
   return IDL.Service({
     'getLeaderboard' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
+    'getMessages' : IDL.Func([], [IDL.Vec(ChatMessage)], ['query']),
     'getPersonalBest' : IDL.Func(
         [IDL.Text, IDL.Text],
         [IDL.Opt(IDL.Nat)],
         ['query'],
       ),
+    'sendMessage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
     'submitScore' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
   });
 };
