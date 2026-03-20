@@ -5,9 +5,9 @@ import Time "mo:core/Time";
 import Order "mo:core/Order";
 import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // --- Types ---
   type ScoreEntry = {

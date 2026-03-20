@@ -4,13 +4,16 @@ import Leaderboard from "@/components/Leaderboard";
 import ScoreModal from "@/components/ScoreModal";
 import { Button } from "@/components/ui/button";
 import type { GameData } from "@/data/games";
+import BasketballGame from "@/games/BasketballGame";
 import BlockBlastGame from "@/games/BlockBlastGame";
 import BlockMinerGame from "@/games/BlockMinerGame";
+import CookieClickerGame from "@/games/CookieClickerGame";
 import FlappyBirdGame from "@/games/FlappyBirdGame";
 import GeometryDashGame from "@/games/GeometryDashGame";
 import MemoryMatchGame from "@/games/MemoryMatchGame";
 import RoadRushGame from "@/games/RoadRushGame";
 import SnakeGame from "@/games/SnakeGame";
+import SolarSmashGame from "@/games/SolarSmashGame";
 import SpaceShooterGame from "@/games/SpaceShooterGame";
 import SpeedDriftGame from "@/games/SpeedDriftGame";
 import StreetRacerGame from "@/games/StreetRacerGame";
@@ -165,25 +168,41 @@ export default function GamePage({ game, onBack }: Props) {
                 {game.id === "block-blast" && (
                   <BlockBlastGame key={gameKey} onGameOver={handleGameOver} />
                 )}
+                {game.id === "cookie-clicker" && (
+                  <CookieClickerGame
+                    key={gameKey}
+                    onGameOver={handleGameOver}
+                  />
+                )}
+                {game.id === "solar-smash" && (
+                  <SolarSmashGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "basketball-random" && (
+                  <BasketballGame key={gameKey} onGameOver={handleGameOver} />
+                )}
               </div>
 
-              {/* Restart button when game over - not shown for street-racer (handles its own) */}
-              {gameOver && game.id !== "street-racer" && (
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    onClick={restartGame}
-                    data-ocid="game.restart_button"
-                    className="font-arcade text-[9px] tracking-wider"
-                    style={{
-                      background: `${game.accentColor}22`,
-                      border: `1px solid ${game.accentColor}66`,
-                      color: game.accentColor,
-                    }}
-                  >
-                    ↺ PLAY AGAIN
-                  </Button>
-                </div>
-              )}
+              {/* Restart button when game over */}
+              {gameOver &&
+                game.id !== "street-racer" &&
+                game.id !== "cookie-clicker" &&
+                game.id !== "solar-smash" &&
+                game.id !== "basketball-random" && (
+                  <div className="mt-4 flex justify-center">
+                    <Button
+                      onClick={restartGame}
+                      data-ocid="game.restart_button"
+                      className="font-arcade text-[9px] tracking-wider"
+                      style={{
+                        background: `${game.accentColor}22`,
+                        border: `1px solid ${game.accentColor}66`,
+                        color: game.accentColor,
+                      }}
+                    >
+                      ↺ PLAY AGAIN
+                    </Button>
+                  </div>
+                )}
             </div>
           </div>
 

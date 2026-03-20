@@ -141,4 +141,40 @@ export const GAMES: GameData[] = [
     category: "PUZZLE",
     thumbnail: "/assets/generated/game-block-blast.dim_400x240.jpg",
   },
+  {
+    id: "cookie-clicker",
+    title: "COOKIE CLICKER",
+    description:
+      "Click the cookie to bake more cookies! Buy upgrades to automate your cookie empire!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #2e1a00 0%, #4a2e08 50%, #1a0e00 100%)",
+    accentColor: "#C8760A",
+    controls: "Click the cookie!",
+    category: "CASUAL",
+    thumbnail: "/assets/generated/game-cookie-clicker.dim_400x240.jpg",
+  },
+  {
+    id: "solar-smash",
+    title: "SOLAR SMASH",
+    description:
+      "Destroy planets with lasers, meteors, nukes and more! Obliterate the solar system!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #0a0520 0%, #150a38 50%, #050210 100%)",
+    accentColor: "#ff6644",
+    controls: "Click planet to fire weapon",
+    category: "SANDBOX",
+    thumbnail: "/assets/generated/game-solar-smash.dim_400x240.jpg",
+  },
+  {
+    id: "basketball-random",
+    title: "BASKETBALL RANDOM",
+    description:
+      "Shoot hoops as the basket moves to a new random spot after every score! Streak for bonus points!",
+    rating: 4.8,
+    gradient: "linear-gradient(135deg, #2e1400 0%, #4a2200 50%, #1a0a00 100%)",
+    accentColor: "#FF6600",
+    controls: "Click to aim and shoot",
+    category: "SPORTS",
+    thumbnail: "/assets/generated/game-basketball-random.dim_400x240.jpg",
+  },
 ];
