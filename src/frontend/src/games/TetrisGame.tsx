@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -10,52 +10,53 @@ const CELL = 28;
 const CW = COLS * CELL;
 const CH = ROWS * CELL;
 const TICK_START = 600;
+const PREVIEW_CELL = 24;
 
 type Board = (string | null)[][];
 
 const PIECES: { shape: number[][]; color: string }[] = [
-  { shape: [[1, 1, 1, 1]], color: "#4FE0C8" }, // I – diamond blue
+  { shape: [[1, 1, 1, 1]], color: "#4FE0C8" },
   {
     shape: [
       [1, 1],
       [1, 1],
     ],
-    color: "#FFD700", // O – gold
+    color: "#FFD700",
   },
   {
     shape: [
       [0, 1, 0],
       [1, 1, 1],
     ],
-    color: "#C8A96E", // T – wood plank
+    color: "#C8A96E",
   },
   {
     shape: [
       [0, 1, 1],
       [1, 1, 0],
     ],
-    color: "#5D8A3C", // S – grass green
+    color: "#5D8A3C",
   },
   {
     shape: [
       [1, 1, 0],
       [0, 1, 1],
     ],
-    color: "#CC3333", // Z – TNT red
+    color: "#CC3333",
   },
   {
     shape: [
       [1, 0, 0],
       [1, 1, 1],
     ],
-    color: "#8B5E3C", // L – dirt brown
+    color: "#8B5E3C",
   },
   {
     shape: [
       [0, 0, 1],
       [1, 1, 1],
     ],
-    color: "#8A8A8A", // J – stone
+    color: "#8A8A8A",
   },
 ];
 
@@ -79,7 +80,7 @@ interface Piece {
   y: number;
 }
 
-function newPiece(): Piece {
+function randomPiece(): Piece {
   const p = PIECES[Math.floor(Math.random() * PIECES.length)];
   return {
     shape: p.shape.map((r) => [...r]),
@@ -114,31 +115,32 @@ function drawMinecraftCell(
   px: number,
   py: number,
   color: string,
+  size = CELL,
 ) {
   ctx.fillStyle = color;
-  ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
-  // top+left lighter
+  ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
   ctx.strokeStyle = "rgba(255,255,255,0.35)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(px + 1, py + CELL - 1);
+  ctx.moveTo(px + 1, py + size - 1);
   ctx.lineTo(px + 1, py + 1);
-  ctx.lineTo(px + CELL - 1, py + 1);
+  ctx.lineTo(px + size - 1, py + 1);
   ctx.stroke();
-  // right+bottom darker
   ctx.strokeStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath();
-  ctx.moveTo(px + CELL - 1, py + 1);
-  ctx.lineTo(px + CELL - 1, py + CELL - 1);
-  ctx.lineTo(px + 1, py + CELL - 1);
+  ctx.moveTo(px + size - 1, py + 1);
+  ctx.lineTo(px + size - 1, py + size - 1);
+  ctx.lineTo(px + 1, py + size - 1);
   ctx.stroke();
 }
 
 export default function TetrisGame({ onGameOver }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({
     board: emptyBoard(),
-    current: newPiece(),
+    current: randomPiece(),
+    next: randomPiece(),
     score: 0,
     lines: 0,
     alive: true,
@@ -147,6 +149,36 @@ export default function TetrisGame({ onGameOver }: Props) {
   const cbRef = useRef(onGameOver);
   cbRef.current = onGameOver;
 
+  const [hud, setHud] = useState({ score: 0, level: 1, lines: 0 });
+
+  const drawPreview = useCallback(() => {
+    const cv = previewRef.current;
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+    const { next } = stateRef.current;
+    const pw = cv.width;
+    const ph = cv.height;
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(0, 0, pw, ph);
+    const cols = next.shape[0].length;
+    const rows = next.shape.length;
+    const offX = Math.floor((pw / PREVIEW_CELL - cols) / 2) * PREVIEW_CELL;
+    const offY = Math.floor((ph / PREVIEW_CELL - rows) / 2) * PREVIEW_CELL;
+    next.shape.forEach((row, r) => {
+      row.forEach((v, c) => {
+        if (!v) return;
+        drawMinecraftCell(
+          ctx,
+          offX + c * PREVIEW_CELL,
+          offY + r * PREVIEW_CELL,
+          next.color,
+          PREVIEW_CELL,
+        );
+      });
+    });
+  }, []);
+
   const draw = useCallback(() => {
     const cv = canvasRef.current;
     if (!cv) return;
@@ -154,11 +186,9 @@ export default function TetrisGame({ onGameOver }: Props) {
     if (!ctx) return;
     const { board, current, score, lines, alive } = stateRef.current;
 
-    // Dark stone background
     ctx.fillStyle = "#141414";
     ctx.fillRect(0, 0, CW, CH);
 
-    // Grid
     ctx.strokeStyle = "rgba(80,80,80,0.15)";
     ctx.lineWidth = 0.5;
     for (let c = 0; c <= COLS; c++) {
@@ -174,50 +204,47 @@ export default function TetrisGame({ onGameOver }: Props) {
       ctx.stroke();
     }
 
-    // Board
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const col = board[r][c];
-        if (col) {
-          drawMinecraftCell(ctx, c * CELL, r * CELL, col);
-        }
+        if (col) drawMinecraftCell(ctx, c * CELL, r * CELL, col);
       }
     }
 
-    // Current piece
     if (alive && current) {
       current.shape.forEach((row, r) => {
         row.forEach((v, c) => {
           if (!v) return;
-          const px = (current.x + c) * CELL;
-          const py = (current.y + r) * CELL;
-          drawMinecraftCell(ctx, px, py, current.color);
+          drawMinecraftCell(
+            ctx,
+            (current.x + c) * CELL,
+            (current.y + r) * CELL,
+            current.color,
+          );
         });
       });
     }
 
-    // HUD
-    ctx.fillStyle = "rgba(0,0,0,0.65)";
-    ctx.fillRect(0, 0, CW, 32);
-    ctx.font = "8px 'Press Start 2P', monospace";
-    ctx.fillStyle = "#FFD700";
-    ctx.fillText(`${score}`, 6, 14);
-    ctx.fillStyle = "#C8A96E";
-    ctx.fillText(`L:${lines}`, 6, 26);
-
     if (!alive) {
+      const level = Math.floor(lines / 10) + 1;
       ctx.fillStyle = "rgba(0,0,0,0.7)";
       ctx.fillRect(0, 0, CW, CH);
       ctx.fillStyle = "#FFD700";
       ctx.font = "14px 'Press Start 2P', monospace";
       ctx.textAlign = "center";
-      ctx.fillText("GAME OVER", CW / 2, CH / 2 - 12);
+      ctx.fillText("GAME OVER", CW / 2, CH / 2 - 24);
       ctx.fillStyle = "#ffffff";
       ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillText(`SCORE: ${score}`, CW / 2, CH / 2 + 10);
+      ctx.fillText(`SCORE: ${score}`, CW / 2, CH / 2 + 4);
+      ctx.fillStyle = "#4FE0C8";
+      ctx.fillText(`LEVEL: ${level}`, CW / 2, CH / 2 + 22);
+      ctx.fillStyle = "#C8A96E";
+      ctx.fillText(`LINES: ${lines}`, CW / 2, CH / 2 + 40);
       ctx.textAlign = "left";
     }
-  }, []);
+
+    drawPreview();
+  }, [drawPreview]);
 
   const lockAndClear = useCallback(() => {
     const s = stateRef.current;
@@ -237,14 +264,35 @@ export default function TetrisGame({ onGameOver }: Props) {
     s.board = newBoard;
     s.score += [0, 100, 300, 500, 800][cleared] ?? 0;
     s.lines += cleared;
-    const next = newPiece();
-    if (collides(s.board, next)) {
+
+    const level = Math.floor(s.lines / 10) + 1;
+    setHud({ score: s.score, level, lines: s.lines });
+
+    // Update timer speed based on level
+    const newInterval = Math.max(100, TICK_START - (level - 1) * 50);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = window.setInterval(() => {
+        const st = stateRef.current;
+        if (!st.alive) return;
+        if (collides(st.board, st.current, 0, 1)) {
+          lockAndClear();
+        } else {
+          st.current.y += 1;
+          draw();
+        }
+      }, newInterval);
+    }
+
+    s.current = s.next;
+    s.next = randomPiece();
+
+    if (collides(s.board, s.current)) {
       s.alive = false;
       draw();
       cbRef.current(s.score);
       return;
     }
-    s.current = next;
     draw();
   }, [draw]);
 
@@ -262,11 +310,13 @@ export default function TetrisGame({ onGameOver }: Props) {
   useEffect(() => {
     stateRef.current = {
       board: emptyBoard(),
-      current: newPiece(),
+      current: randomPiece(),
+      next: randomPiece(),
       score: 0,
       lines: 0,
       alive: true,
     };
+    setHud({ score: 0, level: 1, lines: 0 });
     draw();
     timerRef.current = window.setInterval(dropPiece, TICK_START);
 
@@ -281,9 +331,7 @@ export default function TetrisGame({ onGameOver }: Props) {
         s.current.x += 1;
         draw();
       }
-      if (e.key === "ArrowDown") {
-        dropPiece();
-      }
+      if (e.key === "ArrowDown") dropPiece();
       if (e.key === "ArrowUp") {
         const rot = rotateShape(s.current.shape);
         if (!collides(s.board, s.current, 0, 0, rot)) {
@@ -301,17 +349,83 @@ export default function TetrisGame({ onGameOver }: Props) {
     };
   }, [draw, dropPiece]);
 
+  const hudStyle: React.CSSProperties = {
+    background: "#1a1a1a",
+    border: "3px solid #7A7A7A",
+    borderRadius: 6,
+    padding: "8px",
+    minWidth: 96,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    color: "#888",
+    fontSize: 7,
+    fontFamily: "'Press Start 2P', monospace",
+    marginBottom: 4,
+    display: "block",
+  };
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={CW}
-      height={CH}
-      className="rounded-lg"
-      style={{
-        border: "3px solid #7A7A7A",
-        boxShadow: "none",
-      }}
-      tabIndex={0}
-    />
+    <div className="flex gap-3 items-start">
+      <canvas
+        ref={canvasRef}
+        width={CW}
+        height={CH}
+        className="rounded-lg"
+        style={{ border: "3px solid #7A7A7A" }}
+        tabIndex={0}
+      />
+      <div className="flex flex-col gap-3">
+        <div style={hudStyle}>
+          <span style={labelStyle}>SCORE</span>
+          <span
+            data-ocid="tetris.score"
+            style={{
+              color: "#FFD700",
+              fontSize: 13,
+              fontFamily: "'Press Start 2P', monospace",
+            }}
+          >
+            {hud.score}
+          </span>
+        </div>
+        <div style={hudStyle}>
+          <span style={labelStyle}>LEVEL</span>
+          <span
+            data-ocid="tetris.level"
+            style={{
+              color: "#4FE0C8",
+              fontSize: 13,
+              fontFamily: "'Press Start 2P', monospace",
+            }}
+          >
+            {hud.level}
+          </span>
+        </div>
+        <div style={hudStyle}>
+          <span style={labelStyle}>LINES</span>
+          <span
+            data-ocid="tetris.lines"
+            style={{
+              color: "#C8A96E",
+              fontSize: 13,
+              fontFamily: "'Press Start 2P', monospace",
+            }}
+          >
+            {hud.lines}
+          </span>
+        </div>
+        <div style={hudStyle}>
+          <span style={labelStyle}>NEXT</span>
+          <canvas
+            ref={previewRef}
+            width={96}
+            height={72}
+            style={{ display: "block" }}
+            data-ocid="tetris.panel"
+          />
+        </div>
+      </div>
+    </div>
   );
 }

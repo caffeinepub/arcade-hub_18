@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useSubmitScore } from "@/hooks/useQueries";
+import { filterProfanity } from "@/utils/profanityFilter";
 import { Loader2, Trophy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -31,8 +32,9 @@ export default function ScoreModal({
 
   const handleSubmit = () => {
     if (!playerName.trim()) return;
+    const filteredName = filterProfanity(playerName.trim());
     submitScore(
-      { gameId, player: playerName.trim(), score },
+      { gameId, player: filteredName, score },
       {
         onSuccess: () => {
           toast.success("Score submitted! 🏆");

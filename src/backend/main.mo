@@ -5,9 +5,9 @@ import Time "mo:core/Time";
 import Order "mo:core/Order";
 import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
 
-
-
+(with migration = Migration.run)
 actor {
   // --- Types ---
   type ScoreEntry = {
@@ -29,8 +29,11 @@ actor {
   };
 
   let highScores = Map.empty<Text, Map.Map<Text, ScoreEntry>>();
-  var chatMessages : [ChatMessage] = [];
+
   var nextMessageId = 1;
+
+  let chatRoomMessages = Map.empty<Text, [ChatMessage]>();
+  var globalMessages : [ChatMessage] = [];
   let maxMessages = 200;
 
   // --- Scoreboard Functions ---
@@ -83,6 +86,25 @@ actor {
 
   // --- Chat Functions ---
   public shared ({ caller }) func sendMessage(sender : Text, text : Text) : async Nat {
+    addMessage("global", sender, text);
+  };
+
+  public query ({ caller }) func getMessages() : async [ChatMessage] {
+    globalMessages;
+  };
+
+  public shared ({ caller }) func sendRoomMessage(code : Text, sender : Text, text : Text) : async Nat {
+    addMessage(code, sender, text);
+  };
+
+  public query ({ caller }) func getRoomMessages(code : Text) : async [ChatMessage] {
+    switch (chatRoomMessages.get(code)) {
+      case (null) { [] };
+      case (?messages) { messages };
+    };
+  };
+
+  func addMessage(room : Text, sender : Text, text : Text) : Nat {
     if (sender.size() == 0 or text.size() == 0) {
       Runtime.trap("Sender and message cannot be empty");
     };
@@ -94,19 +116,29 @@ actor {
       timestamp = Time.now();
     };
 
-    let tempMessages = [newMessage].concat(chatMessages);
-
-    chatMessages := if (tempMessages.size() > maxMessages) {
-      tempMessages.sliceToArray(0, maxMessages);
+    if (room == "global") {
+      let tempMessages = [newMessage].concat(globalMessages);
+      globalMessages := if (tempMessages.size() > maxMessages) {
+        tempMessages.sliceToArray(0, maxMessages);
+      } else {
+        tempMessages;
+      };
     } else {
-      tempMessages;
+      let roomMessages = switch (chatRoomMessages.get(room)) {
+        case (null) { [newMessage] };
+        case (?msgs) {
+          let tempMessages = [newMessage].concat(msgs);
+          if (tempMessages.size() > maxMessages) {
+            tempMessages.sliceToArray(0, maxMessages);
+          } else {
+            tempMessages;
+          };
+        };
+      };
+      chatRoomMessages.add(room, roomMessages);
     };
 
     nextMessageId += 1;
     newMessage.id;
-  };
-
-  public query ({ caller }) func getMessages() : async [ChatMessage] {
-    chatMessages;
   };
 };

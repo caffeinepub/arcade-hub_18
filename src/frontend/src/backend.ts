@@ -103,7 +103,9 @@ export interface backendInterface {
     getLeaderboard(gameId: string): Promise<Array<ScoreEntry>>;
     getMessages(): Promise<Array<ChatMessage>>;
     getPersonalBest(gameId: string, player: string): Promise<bigint | null>;
+    getRoomMessages(code: string): Promise<Array<ChatMessage>>;
     sendMessage(sender: string, text: string): Promise<bigint>;
+    sendRoomMessage(code: string, sender: string, text: string): Promise<bigint>;
     submitScore(gameId: string, player: string, score: bigint): Promise<void>;
 }
 export class Backend implements backendInterface {
@@ -150,6 +152,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getRoomMessages(arg0: string): Promise<Array<ChatMessage>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getRoomMessages(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getRoomMessages(arg0);
+            return result;
+        }
+    }
     async sendMessage(arg0: string, arg1: string): Promise<bigint> {
         if (this.processError) {
             try {
@@ -161,6 +177,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.sendMessage(arg0, arg1);
+            return result;
+        }
+    }
+    async sendRoomMessage(arg0: string, arg1: string, arg2: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.sendRoomMessage(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.sendRoomMessage(arg0, arg1, arg2);
             return result;
         }
     }

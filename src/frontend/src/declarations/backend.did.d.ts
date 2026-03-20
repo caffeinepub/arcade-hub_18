@@ -21,7 +21,9 @@ export interface _SERVICE {
   'getLeaderboard' : ActorMethod<[string], Array<ScoreEntry>>,
   'getMessages' : ActorMethod<[], Array<ChatMessage>>,
   'getPersonalBest' : ActorMethod<[string, string], [] | [bigint]>,
+  'getRoomMessages' : ActorMethod<[string], Array<ChatMessage>>,
   'sendMessage' : ActorMethod<[string, string], bigint>,
+  'sendRoomMessage' : ActorMethod<[string, string, string], bigint>,
   'submitScore' : ActorMethod<[string, string, bigint], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

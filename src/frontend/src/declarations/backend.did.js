@@ -27,7 +27,9 @@ export const idlService = IDL.Service({
       [IDL.Opt(IDL.Nat)],
       ['query'],
     ),
+  'getRoomMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
   'sendMessage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+  'sendRoomMessage' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
   'submitScore' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
 });
 
@@ -50,7 +52,9 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(IDL.Nat)],
         ['query'],
       ),
+    'getRoomMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
     'sendMessage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+    'sendRoomMessage' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
     'submitScore' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
   });
 };

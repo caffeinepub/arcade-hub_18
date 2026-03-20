@@ -1,5 +1,6 @@
 import type { GameData } from "@/data/games";
 import { useGetLeaderboard } from "@/hooks/useQueries";
+import { filterProfanity } from "@/utils/profanityFilter";
 import { Loader2, Trophy } from "lucide-react";
 
 interface Props {
@@ -115,7 +116,7 @@ export default function Leaderboard({ game }: Props) {
                 #{i + 1}
               </span>
               <span className="text-xs text-foreground font-medium truncate max-w-[100px]">
-                {entry.player}
+                {filterProfanity(entry.player)}
               </span>
             </div>
             <span
