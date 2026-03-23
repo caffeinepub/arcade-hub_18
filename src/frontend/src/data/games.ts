@@ -189,4 +189,16 @@ export const GAMES: GameData[] = [
     category: "SHOOTER",
     thumbnail: "/assets/generated/game-sky-ace.dim_400x240.jpg",
   },
+  {
+    id: "blackjack",
+    title: "BLACKJACK",
+    description:
+      "Beat the dealer to 21 without going bust! Hit, Stand, or Double Down to win big chips!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #0a2e0a 0%, #0f3d12 50%, #051a07 100%)",
+    accentColor: "#22c55e",
+    controls: "Click buttons to Hit / Stand / Double Down",
+    category: "CASINO",
+    thumbnail: "/assets/generated/game-blackjack.dim_400x240.jpg",
+  },
 ];

@@ -5,6 +5,7 @@ import ScoreModal from "@/components/ScoreModal";
 import { Button } from "@/components/ui/button";
 import type { GameData } from "@/data/games";
 import BasketballGame from "@/games/BasketballGame";
+import BlackjackGame from "@/games/BlackjackGame";
 import BlockBlastGame from "@/games/BlockBlastGame";
 import BlockMinerGame from "@/games/BlockMinerGame";
 import CookieClickerGame from "@/games/CookieClickerGame";
@@ -63,6 +64,15 @@ export default function GamePage({ game, onBack }: Props) {
     setFinalScore(0);
     setGameKey((k) => k + 1);
   };
+
+  const noAutoRestart = [
+    "street-racer",
+    "cookie-clicker",
+    "solar-smash",
+    "basketball-random",
+    "sky-ace",
+    "blackjack",
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -184,30 +194,28 @@ export default function GamePage({ game, onBack }: Props) {
                 {game.id === "sky-ace" && (
                   <SkyAce key={gameKey} onGameOver={handleGameOver} />
                 )}
+                {game.id === "blackjack" && (
+                  <BlackjackGame key={gameKey} onGameOver={handleGameOver} />
+                )}
               </div>
 
               {/* Restart button when game over */}
-              {gameOver &&
-                game.id !== "street-racer" &&
-                game.id !== "cookie-clicker" &&
-                game.id !== "solar-smash" &&
-                game.id !== "basketball-random" &&
-                game.id !== "sky-ace" && (
-                  <div className="mt-4 flex justify-center">
-                    <Button
-                      onClick={restartGame}
-                      data-ocid="game.restart_button"
-                      className="font-arcade text-[9px] tracking-wider"
-                      style={{
-                        background: `${game.accentColor}22`,
-                        border: `1px solid ${game.accentColor}66`,
-                        color: game.accentColor,
-                      }}
-                    >
-                      ↺ PLAY AGAIN
-                    </Button>
-                  </div>
-                )}
+              {gameOver && !noAutoRestart.includes(game.id) && (
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    onClick={restartGame}
+                    data-ocid="game.restart_button"
+                    className="font-arcade text-[9px] tracking-wider"
+                    style={{
+                      background: `${game.accentColor}22`,
+                      border: `1px solid ${game.accentColor}66`,
+                      color: game.accentColor,
+                    }}
+                  >
+                    ↺ PLAY AGAIN
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
