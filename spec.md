@@ -1,23 +1,26 @@
 # Arcade Hub
 
 ## Current State
-Live Chat is a single global room. Users choose a display name and messages are stored in a flat array in the backend. The ChatPage renders messages, allows name editing, and sends to/from the single room.
+Arcade Hub is a web-based platform with a growing library of games including Snake, Tetris, Memory Match, Flappy Bird, Road Rush, Speed Drift, Space Shooter, Street Racer, Block Miner, Geometry Dash, Block Blast, Cookie Clicker, Solar Smash, and Basketball Random. All games use Minecraft-themed visuals by default with interchangeable themes.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Private chat rooms with custom join codes.
-- Backend: rooms map keyed by code, each with its own message array.
-- Backend functions: sendRoomMessage(code, sender, text), getRoomMessages(code).
-- Frontend: room selection screen after name entry -- Global Chat or Private Room (enter/create code).
-- Private room view shows the room code prominently for sharing.
+- **Sky Ace**: A side-scrolling airplane shooter game. Player pilots a plane that auto-scrolls through the sky, shooting down enemy planes and dodging obstacles. Features: score counter, lives (3), enemy waves that increase in speed/frequency, and particle explosion effects on hits. Minecraft-themed aesthetic (pixelated sky, blocky clouds, blocky plane and enemies).
 
 ### Modify
-- ChatPage: add room-selection step between name entry and chat view.
+- Add Sky Ace to the game grid on the main page with a thumbnail.
 
 ### Remove
 - Nothing.
 
 ## Implementation Plan
-1. Add backend types and functions for private rooms.
-2. Update ChatPage with room picker UI and private room chat view.
+1. Create `SkyAce.tsx` game component with Canvas-based side-scrolling shooter.
+2. Player plane on the left side, can move up/down with arrow keys or W/S.
+3. Auto-fire bullets; enemy planes spawn from the right and move left.
+4. Obstacles (clouds, mountains) scroll in the background.
+5. Score increments per enemy destroyed; lives decrease on collision.
+6. Game over screen with score and restart.
+7. Minecraft pixel art style: blocky plane, pixelated clouds, green hills.
+8. Add Sky Ace entry to the games list in App.tsx with thumbnail.
+9. Full-screen button support.

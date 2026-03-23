@@ -177,4 +177,16 @@ export const GAMES: GameData[] = [
     category: "SPORTS",
     thumbnail: "/assets/generated/game-basketball-random.dim_400x240.jpg",
   },
+  {
+    id: "sky-ace",
+    title: "SKY ACE",
+    description:
+      "Pilot your blocky plane through enemy skies! Shoot down red fighters and survive endless waves!",
+    rating: 4.8,
+    gradient: "linear-gradient(135deg, #0a1e2e 0%, #1a3a50 50%, #051018 100%)",
+    accentColor: "#4aa8e8",
+    controls: "Arrow Up/Down or W/S to move",
+    category: "SHOOTER",
+    thumbnail: "/assets/generated/game-sky-ace.dim_400x240.jpg",
+  },
 ];

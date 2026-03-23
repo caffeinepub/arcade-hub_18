@@ -12,6 +12,7 @@ import FlappyBirdGame from "@/games/FlappyBirdGame";
 import GeometryDashGame from "@/games/GeometryDashGame";
 import MemoryMatchGame from "@/games/MemoryMatchGame";
 import RoadRushGame from "@/games/RoadRushGame";
+import SkyAce from "@/games/SkyAce";
 import SnakeGame from "@/games/SnakeGame";
 import SolarSmashGame from "@/games/SolarSmashGame";
 import SpaceShooterGame from "@/games/SpaceShooterGame";
@@ -180,6 +181,9 @@ export default function GamePage({ game, onBack }: Props) {
                 {game.id === "basketball-random" && (
                   <BasketballGame key={gameKey} onGameOver={handleGameOver} />
                 )}
+                {game.id === "sky-ace" && (
+                  <SkyAce key={gameKey} onGameOver={handleGameOver} />
+                )}
               </div>
 
               {/* Restart button when game over */}
@@ -187,7 +191,8 @@ export default function GamePage({ game, onBack }: Props) {
                 game.id !== "street-racer" &&
                 game.id !== "cookie-clicker" &&
                 game.id !== "solar-smash" &&
-                game.id !== "basketball-random" && (
+                game.id !== "basketball-random" &&
+                game.id !== "sky-ace" && (
                   <div className="mt-4 flex justify-center">
                     <Button
                       onClick={restartGame}
