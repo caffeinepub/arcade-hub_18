@@ -201,4 +201,16 @@ export const GAMES: GameData[] = [
     category: "CASINO",
     thumbnail: "/assets/generated/game-blackjack.dim_400x240.jpg",
   },
+  {
+    id: "pokemon-ruby",
+    title: "POKEMON RUBY",
+    description:
+      "Explore the overworld, battle wild Pokemon in tall grass, and become the greatest trainer!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #2e0a0a 0%, #4a0808 50%, #1a0505 100%)",
+    accentColor: "#cc2200",
+    controls: "Arrow Keys / WASD to move",
+    category: "RPG",
+    thumbnail: "/assets/generated/game-pokemon-ruby.dim_400x240.jpg",
+  },
 ];

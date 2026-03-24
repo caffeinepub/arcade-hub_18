@@ -12,6 +12,7 @@ import CookieClickerGame from "@/games/CookieClickerGame";
 import FlappyBirdGame from "@/games/FlappyBirdGame";
 import GeometryDashGame from "@/games/GeometryDashGame";
 import MemoryMatchGame from "@/games/MemoryMatchGame";
+import PokemonRubyGame from "@/games/PokemonRubyGame";
 import RoadRushGame from "@/games/RoadRushGame";
 import SkyAce from "@/games/SkyAce";
 import SnakeGame from "@/games/SnakeGame";
@@ -72,6 +73,7 @@ export default function GamePage({ game, onBack }: Props) {
     "basketball-random",
     "sky-ace",
     "blackjack",
+    "pokemon-ruby",
   ];
 
   return (
@@ -196,6 +198,9 @@ export default function GamePage({ game, onBack }: Props) {
                 )}
                 {game.id === "blackjack" && (
                   <BlackjackGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "pokemon-ruby" && (
+                  <PokemonRubyGame key={gameKey} onGameOver={handleGameOver} />
                 )}
               </div>
 

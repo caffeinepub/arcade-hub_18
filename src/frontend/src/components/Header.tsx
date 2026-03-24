@@ -4,6 +4,7 @@ import {
   Film,
   Gamepad2,
   MessageSquare,
+  Music2,
   Palette,
   Search,
   Youtube,
@@ -96,6 +97,17 @@ export default function Header({ onNavClick }: Props) {
 
           {/* Right */}
           <div className="flex items-center gap-2">
+            <a
+              href="https://soundinstants.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="header.soundboard_button"
+              className="font-arcade text-[9px] mc-btn px-3 py-2 tracking-wider flex items-center gap-1"
+              style={{ color: "#a855f7", borderColor: "#a855f7" }}
+            >
+              <Music2 className="h-4 w-4" />
+              <span className="hidden sm:inline">SOUNDBOARD</span>
+            </a>
             <button
               type="button"
               onClick={() => onNavClick?.("CHAT")}

@@ -11,6 +11,12 @@ interface Card {
 type GamePhase = "bet" | "playing" | "dealerTurn" | "result";
 type Outcome = "win" | "blackjack" | "lose" | "push" | null;
 
+interface LeaderboardEntry {
+  name: string;
+  chips: number;
+  date: string;
+}
+
 const RANKS = [
   "2",
   "3",
@@ -69,6 +75,19 @@ function isRed(suit: string): boolean {
   return suit === "♥" || suit === "♦";
 }
 
+function loadLeaderboard(): LeaderboardEntry[] {
+  try {
+    const stored = localStorage.getItem("blackjack-leaderboard");
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLeaderboard(entries: LeaderboardEntry[]) {
+  localStorage.setItem("blackjack-leaderboard", JSON.stringify(entries));
+}
+
 const BET_OPTIONS = [25, 50, 100, 250, 500];
 
 interface Props {
@@ -89,6 +108,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
   const [outcome, setOutcome] = useState<Outcome>(null);
   const [message, setMessage] = useState("");
   const dealerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Leaderboard state
+  const [leaderboard, setLeaderboard] =
+    useState<LeaderboardEntry[]>(loadLeaderboard);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [savedThisRound, setSavedThisRound] = useState(false);
+  const [lastSavedChips, setLastSavedChips] = useState<number | null>(null);
 
   // Persist chips
   useEffect(() => {
@@ -131,6 +158,23 @@ export default function BlackjackGame({ onGameOver }: Props) {
   };
   const tc = themeColors[theme] || themeColors.minecraft;
 
+  function handleSaveScore() {
+    const trimmed = saveName.trim().slice(0, 16) || "PLAYER";
+    const entry: LeaderboardEntry = {
+      name: trimmed,
+      chips,
+      date: new Date().toLocaleDateString(),
+    };
+    const updated = [...leaderboard, entry]
+      .sort((a, b) => b.chips - a.chips)
+      .slice(0, 10);
+    setLeaderboard(updated);
+    saveLeaderboard(updated);
+    setLastSavedChips(chips);
+    setSavedThisRound(true);
+    setShowLeaderboard(true);
+  }
+
   function startDeal() {
     if (bet === 0 || bet > chips) return;
     const freshDeck = shuffle(buildDeck());
@@ -145,11 +189,11 @@ export default function BlackjackGame({ onGameOver }: Props) {
     setDealerHand(dHand);
     setOutcome(null);
     setMessage("");
+    setSavedThisRound(false);
 
     const pScore = calcHandValue(pHand);
-    const dScore = calcHandValue([d1]); // only visible card
+    const dScore = calcHandValue([d1]);
     if (pScore === 21) {
-      // Check for blackjack - reveal dealer
       const revealedDHand = dHand.map((c) => ({ ...c, faceDown: false }));
       const fullDScore = calcHandValue(revealedDHand);
       setDealerHand(revealedDHand);
@@ -160,7 +204,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
       }
     } else {
       setPhase("playing");
-      void dScore; // suppress lint
+      void dScore;
     }
   }
 
@@ -173,7 +217,6 @@ export default function BlackjackGame({ onGameOver }: Props) {
     setPlayerHand(newHand);
     const score = calcHandValue(newHand);
     if (score > 21) {
-      // bust - reveal dealer
       const revealedDHand = dealerHand.map((c) => ({ ...c, faceDown: false }));
       setDealerHand(revealedDHand);
       endGame("lose", newHand, revealedDHand);
@@ -254,11 +297,9 @@ export default function BlackjackGame({ onGameOver }: Props) {
       if (result === "win") next = prev - bet + bet * 2;
       else if (result === "blackjack")
         next = prev - bet + Math.floor(bet * 2.5);
-      else if (result === "push")
-        next = prev; // no change
+      else if (result === "push") next = prev;
       else next = prev - bet;
       localStorage.setItem("blackjack-chips", String(next));
-      // Report score if at 0
       if (next <= 0) setTimeout(() => onGameOver(0), 1200);
       return next;
     });
@@ -280,6 +321,8 @@ export default function BlackjackGame({ onGameOver }: Props) {
     setOutcome(null);
     setMessage("");
     setPhase("bet");
+    setSavedThisRound(false);
+    setSaveName("");
     if (chips <= 0) {
       setChips(1000);
     }
@@ -296,6 +339,10 @@ export default function BlackjackGame({ onGameOver }: Props) {
 
   const playerScore = calcHandValue(playerHand);
   const dealerScore = calcHandValue(dealerHand.filter((c) => !c.faceDown));
+
+  const isInTopTen =
+    lastSavedChips !== null &&
+    leaderboard.some((e) => e.chips === lastSavedChips);
 
   return (
     <div
@@ -322,20 +369,39 @@ export default function BlackjackGame({ onGameOver }: Props) {
         >
           💰 CHIPS: ${chips.toLocaleString()}
         </div>
-        {bet > 0 && (
-          <div
-            className="text-xs px-3 py-1 rounded"
+        <div className="flex gap-2 items-center">
+          {bet > 0 && (
+            <div
+              className="text-xs px-3 py-1 rounded"
+              style={{
+                color: "#F5C518",
+                border: "1px solid #F5C51855",
+                background: "#F5C51811",
+                fontSize: "9px",
+                fontFamily: "inherit",
+              }}
+            >
+              🎲 BET: ${bet.toLocaleString()}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowLeaderboard((v) => !v)}
+            data-ocid="blackjack.toggle"
+            className="px-2 py-1 rounded transition-all hover:scale-105 active:scale-95"
             style={{
-              color: "#F5C518",
-              border: "1px solid #F5C51855",
-              background: "#F5C51811",
-              fontSize: "9px",
+              fontSize: "8px",
               fontFamily: "inherit",
+              background: showLeaderboard ? `${tc.accent}33` : "#111",
+              border: `1px solid ${showLeaderboard ? tc.accent : "#444"}`,
+              color: showLeaderboard ? tc.accent : "#888",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
-            🎲 BET: ${bet.toLocaleString()}
-          </div>
-        )}
+            🏆 SCORES
+          </button>
+        </div>
       </div>
 
       {/* Dealer hand */}
@@ -420,20 +486,8 @@ export default function BlackjackGame({ onGameOver }: Props) {
                 : outcome === "push"
                   ? "#F5C518"
                   : "#f44336",
-            border: `1px solid ${
-              outcome === "win" || outcome === "blackjack"
-                ? "#4CAF50"
-                : outcome === "push"
-                  ? "#F5C518"
-                  : "#f44336"
-            }55`,
-            background: `${
-              outcome === "win" || outcome === "blackjack"
-                ? "#4CAF50"
-                : outcome === "push"
-                  ? "#F5C518"
-                  : "#f44336"
-            }11`,
+            border: `1px solid ${outcome === "win" || outcome === "blackjack" ? "#4CAF50" : outcome === "push" ? "#F5C518" : "#f44336"}55`,
+            background: `${outcome === "win" || outcome === "blackjack" ? "#4CAF50" : outcome === "push" ? "#F5C518" : "#f44336"}11`,
             fontFamily: "inherit",
             letterSpacing: "0.05em",
           }}
@@ -571,21 +625,78 @@ export default function BlackjackGame({ onGameOver }: Props) {
         )}
 
         {phase === "result" && (
-          <button
-            type="button"
-            onClick={newRound}
-            data-ocid="blackjack.primary_button"
-            className="px-8 py-2 rounded transition-all hover:scale-105 active:scale-95"
-            style={{
-              fontSize: "9px",
-              fontFamily: "inherit",
-              background: `${tc.accent}33`,
-              border: `1px solid ${tc.accent}`,
-              color: tc.accent,
-            }}
-          >
-            {chips <= 0 ? "RESTART (FREE $1000)" : "NEXT ROUND ▶"}
-          </button>
+          <div className="flex flex-col items-center gap-3 w-full">
+            {/* Save score row */}
+            {!savedThisRound ? (
+              <div className="flex gap-2 items-center flex-wrap justify-center">
+                <input
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && saveName.trim()) handleSaveScore();
+                  }}
+                  placeholder="YOUR NAME"
+                  maxLength={16}
+                  data-ocid="blackjack.input"
+                  style={{
+                    fontFamily: "inherit",
+                    fontSize: "8px",
+                    background: "#111",
+                    border: `1px solid ${tc.accent}66`,
+                    color: tc.accent,
+                    padding: "6px 10px",
+                    borderRadius: "4px",
+                    outline: "none",
+                    width: "130px",
+                    letterSpacing: "1px",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveScore}
+                  data-ocid="blackjack.save_button"
+                  className="px-3 py-1 rounded transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    fontSize: "8px",
+                    fontFamily: "inherit",
+                    background: `${tc.accent}33`,
+                    border: `1px solid ${tc.accent}`,
+                    color: tc.accent,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  🏆 SAVE
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontSize: "8px",
+                  color: isInTopTen ? "#F5C518" : "#888",
+                  fontFamily: "inherit",
+                }}
+              >
+                {isInTopTen ? "⭐ SCORE SAVED!" : "SCORE NOT IN TOP 10"}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={newRound}
+              data-ocid="blackjack.primary_button"
+              className="px-8 py-2 rounded transition-all hover:scale-105 active:scale-95"
+              style={{
+                fontSize: "9px",
+                fontFamily: "inherit",
+                background: `${tc.accent}33`,
+                border: `1px solid ${tc.accent}`,
+                color: tc.accent,
+              }}
+            >
+              {chips <= 0 ? "RESTART (FREE $1000)" : "NEXT ROUND ▶"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -601,6 +712,121 @@ export default function BlackjackGame({ onGameOver }: Props) {
           data-ocid="blackjack.error_state"
         >
           ⚠ LOW CHIPS — RUNNING OUT!
+        </div>
+      )}
+
+      {/* Leaderboard Panel */}
+      {showLeaderboard && (
+        <div
+          className="w-full rounded-lg"
+          style={{
+            background: "#080808",
+            border: `2px solid ${tc.accent}44`,
+            padding: "12px",
+            marginTop: "4px",
+          }}
+          data-ocid="blackjack.panel"
+        >
+          <div
+            style={{
+              fontSize: "9px",
+              color: tc.accent,
+              letterSpacing: "2px",
+              marginBottom: "10px",
+              textAlign: "center",
+              textShadow: `0 0 8px ${tc.accent}66`,
+            }}
+          >
+            🏆 TOP SCORES
+          </div>
+          {leaderboard.length === 0 ? (
+            <div
+              style={{
+                fontSize: "7px",
+                color: "#555",
+                textAlign: "center",
+                fontFamily: "inherit",
+                padding: "8px",
+              }}
+              data-ocid="blackjack.empty_state"
+            >
+              NO SCORES YET
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {leaderboard.map((entry, i) => {
+                const isCurrentSession =
+                  savedThisRound &&
+                  lastSavedChips === entry.chips &&
+                  entry.name === (saveName.trim().slice(0, 16) || "PLAYER");
+                return (
+                  <div
+                    key={`lb-${entry.name}-${entry.chips}-${entry.date}`}
+                    data-ocid={`blackjack.item.${i + 1}`}
+                    className="flex items-center gap-2 px-2 py-1 rounded"
+                    style={{
+                      background: isCurrentSession
+                        ? `${tc.accent}22`
+                        : i % 2 === 0
+                          ? "#111"
+                          : "#0d0d0d",
+                      border: isCurrentSession
+                        ? `1px solid ${tc.accent}66`
+                        : "1px solid transparent",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "8px",
+                        color:
+                          i === 0
+                            ? "#FFD700"
+                            : i === 1
+                              ? "#C0C0C0"
+                              : i === 2
+                                ? "#CD7F32"
+                                : "#555",
+                        fontFamily: "inherit",
+                        width: "20px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {i === 0
+                        ? "🥇"
+                        : i === 1
+                          ? "🥈"
+                          : i === 2
+                            ? "🥉"
+                            : `#${i + 1}`}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "7px",
+                        color: isCurrentSession ? tc.accent : "#ccc",
+                        fontFamily: "inherit",
+                        flex: 1,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {entry.name.slice(0, 12)}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "8px",
+                        color: "#F5C518",
+                        fontFamily: "inherit",
+                        flexShrink: 0,
+                      }}
+                    >
+                      ${entry.chips.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -648,7 +874,6 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
         position: "relative",
       }}
     >
-      {/* Top-left rank+suit */}
       <div
         style={{
           fontSize: "11px",
@@ -660,7 +885,6 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
         <div>{card.rank}</div>
         <div style={{ fontSize: "10px" }}>{card.suit}</div>
       </div>
-      {/* Center suit */}
       <div
         style={{
           position: "absolute",
@@ -673,7 +897,6 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
       >
         {card.suit}
       </div>
-      {/* Bottom-right rank+suit (rotated) */}
       <div
         style={{
           fontSize: "11px",

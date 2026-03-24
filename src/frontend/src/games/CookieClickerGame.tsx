@@ -25,6 +25,12 @@ interface Particle {
   size: number;
 }
 
+interface LeaderboardEntry {
+  name: string;
+  cookies: number;
+  date: string;
+}
+
 const UPGRADES_TEMPLATE: Omit<Upgrade, "owned">[] = [
   {
     id: "cursor",
@@ -116,7 +122,6 @@ const UPGRADES_TEMPLATE: Omit<Upgrade, "owned">[] = [
     cpsPerOwned: 100000,
     clickPowerBonus: 0,
   },
-  // Click power upgrades
   {
     id: "betterclick",
     name: "BETTER CLICK",
@@ -189,6 +194,19 @@ function getUpgradeCost(
   return Math.floor(upgrade.baseCost * 1.15 ** owned);
 }
 
+function loadCookieLeaderboard(): LeaderboardEntry[] {
+  try {
+    const stored = localStorage.getItem("cookie-leaderboard");
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCookieLeaderboard(entries: LeaderboardEntry[]) {
+  localStorage.setItem("cookie-leaderboard", JSON.stringify(entries));
+}
+
 interface Props {
   onGameOver?: (score: number) => void;
 }
@@ -208,6 +226,16 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
   const lastTickRef = useRef(Date.now());
   const cookiesRef = useRef(0);
   const upgradesRef = useRef(upgrades);
+
+  // Leaderboard state
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(
+    loadCookieLeaderboard,
+  );
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [showSaveInput, setShowSaveInput] = useState(false);
+  const [savedThisSession, setSavedThisSession] = useState(false);
+  const [lastSavedCookies, setLastSavedCookies] = useState<number | null>(null);
 
   useEffect(() => {
     cookiesRef.current = cookies;
@@ -318,8 +346,31 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
     );
   }, []);
 
+  function handleSaveCookieScore() {
+    const trimmed = saveName.trim().slice(0, 16) || "BAKER";
+    const entry: LeaderboardEntry = {
+      name: trimmed,
+      cookies: Math.floor(totalCookies),
+      date: new Date().toLocaleDateString(),
+    };
+    const updated = [...leaderboard, entry]
+      .sort((a, b) => b.cookies - a.cookies)
+      .slice(0, 10);
+    setLeaderboard(updated);
+    saveCookieLeaderboard(updated);
+    setLastSavedCookies(Math.floor(totalCookies));
+    setSavedThisSession(true);
+    setShowSaveInput(false);
+    setShowLeaderboard(true);
+  }
+
   const cpsUpgrades = upgrades.filter((u) => u.cpsPerOwned > 0);
   const clickUpgrades = upgrades.filter((u) => u.clickPowerBonus > 0);
+
+  const isInTopTen =
+    savedThisSession &&
+    lastSavedCookies !== null &&
+    leaderboard.some((e) => e.cookies === lastSavedCookies);
 
   return (
     <div
@@ -433,7 +484,6 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             <rect x="1" y="12" width="14" height="1" fill="#A0522D" />
             <rect x="2" y="13" width="12" height="1" fill="#8B4513" />
             <rect x="4" y="14" width="8" height="1" fill="#7B3503" />
-            {/* Chocolate chips */}
             <rect x="4" y="4" width="2" height="2" fill="#3B1E08" />
             <rect x="9" y="3" width="2" height="2" fill="#3B1E08" />
             <rect x="11" y="7" width="2" height="2" fill="#3B1E08" />
@@ -441,7 +491,6 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             <rect x="7" y="6" width="2" height="2" fill="#3B1E08" />
             <rect x="6" y="10" width="2" height="2" fill="#3B1E08" />
             <rect x="10" y="11" width="2" height="2" fill="#3B1E08" />
-            {/* Highlight */}
             <rect
               x="3"
               y="3"
@@ -557,7 +606,6 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             const cost = getUpgradeCost(upgrade, upgrade.owned);
             const canAfford = cookies >= cost;
             const totalCps = upgrade.cpsPerOwned * upgrade.owned;
-
             return (
               <button
                 key={upgrade.id}
@@ -665,7 +713,6 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             const cost = getUpgradeCost(upgrade, upgrade.owned);
             const canAfford = cookies >= cost;
             const totalBonus = 1 + upgrade.clickPowerBonus * upgrade.owned;
-
             return (
               <button
                 key={upgrade.id}
@@ -765,11 +812,262 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           }}
         >
           <p
-            style={{ fontSize: "6px", color: "#4a6a30", letterSpacing: "1px" }}
+            style={{
+              fontSize: "6px",
+              color: "#4a6a30",
+              letterSpacing: "1px",
+              marginBottom: "6px",
+            }}
           >
             CPS: {cps.toFixed(1)} | CLICK: +{clickPower}
           </p>
+
+          {/* Save score row */}
+          {!savedThisSession ? (
+            showSaveInput ? (
+              <div
+                className="flex gap-1 items-center"
+                style={{ marginBottom: "4px" }}
+              >
+                <input
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && saveName.trim())
+                      handleSaveCookieScore();
+                    if (e.key === "Escape") setShowSaveInput(false);
+                  }}
+                  placeholder="NAME"
+                  maxLength={16}
+                  data-ocid="cookie.input"
+                  style={{
+                    fontFamily: "inherit",
+                    fontSize: "7px",
+                    background: "#111",
+                    border: "1px solid #5D8A2C66",
+                    color: "#c8e890",
+                    padding: "4px 6px",
+                    borderRadius: "2px",
+                    outline: "none",
+                    flex: 1,
+                    minWidth: 0,
+                    letterSpacing: "1px",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveCookieScore}
+                  data-ocid="cookie.save_button"
+                  style={{
+                    fontFamily: "inherit",
+                    fontSize: "7px",
+                    background: "#5D8A2C33",
+                    border: "1px solid #5D8A2C",
+                    color: "#a0d060",
+                    padding: "4px 6px",
+                    borderRadius: "2px",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                >
+                  ✓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSaveInput(false)}
+                  data-ocid="cookie.cancel_button"
+                  style={{
+                    fontFamily: "inherit",
+                    fontSize: "7px",
+                    background: "#33111133",
+                    border: "1px solid #661111",
+                    color: "#d06060",
+                    padding: "4px 6px",
+                    borderRadius: "2px",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSaveInput(true)}
+                data-ocid="cookie.open_modal_button"
+                style={{
+                  fontFamily: "inherit",
+                  fontSize: "7px",
+                  background: "#F5C51822",
+                  border: "1px solid #F5C51866",
+                  color: "#F5C518",
+                  padding: "4px 8px",
+                  borderRadius: "2px",
+                  cursor: "pointer",
+                  width: "100%",
+                  letterSpacing: "1px",
+                  marginBottom: "4px",
+                }}
+              >
+                🏆 SAVE SCORE
+              </button>
+            )
+          ) : (
+            <div
+              style={{
+                fontSize: "6px",
+                color: isInTopTen ? "#F5C518" : "#555",
+                letterSpacing: "1px",
+                marginBottom: "4px",
+              }}
+            >
+              {isInTopTen ? "⭐ SCORE SAVED!" : "NOT IN TOP 10"}
+            </div>
+          )}
+
+          {/* Leaderboard toggle */}
+          <button
+            type="button"
+            onClick={() => setShowLeaderboard((v) => !v)}
+            data-ocid="cookie.toggle"
+            style={{
+              fontFamily: "inherit",
+              fontSize: "7px",
+              background: showLeaderboard ? "#5D8A2C33" : "#111",
+              border: `1px solid ${showLeaderboard ? "#5D8A2C" : "#333"}`,
+              color: showLeaderboard ? "#a0d060" : "#555",
+              padding: "4px 8px",
+              borderRadius: "2px",
+              cursor: "pointer",
+              width: "100%",
+              letterSpacing: "1px",
+            }}
+          >
+            {showLeaderboard ? "▲ HIDE SCORES" : "▼ TOP SCORES"}
+          </button>
         </div>
+
+        {/* Leaderboard Panel */}
+        {showLeaderboard && (
+          <div
+            style={{
+              background: "#060e04",
+              borderTop: "2px solid #5D8A2C44",
+              padding: "10px",
+              maxHeight: "260px",
+              overflowY: "auto",
+            }}
+            data-ocid="cookie.panel"
+          >
+            <div
+              style={{
+                fontSize: "8px",
+                color: "#5D8A2C",
+                letterSpacing: "2px",
+                marginBottom: "8px",
+                textAlign: "center",
+              }}
+            >
+              🏆 LEADERBOARD
+            </div>
+            {leaderboard.length === 0 ? (
+              <div
+                style={{
+                  fontSize: "6px",
+                  color: "#2a4a10",
+                  textAlign: "center",
+                  padding: "8px",
+                  fontFamily: "inherit",
+                }}
+                data-ocid="cookie.empty_state"
+              >
+                NO SCORES YET
+              </div>
+            ) : (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "3px" }}
+              >
+                {leaderboard.map((entry, i) => {
+                  const isCurrentSession =
+                    savedThisSession &&
+                    lastSavedCookies === entry.cookies &&
+                    entry.name === (saveName.trim().slice(0, 16) || "BAKER");
+                  return (
+                    <div
+                      key={`clb-${entry.name}-${entry.cookies}-${entry.date}`}
+                      data-ocid={`cookie.item.${i + 1}`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "3px 4px",
+                        borderRadius: "2px",
+                        background: isCurrentSession
+                          ? "#5D8A2C22"
+                          : i % 2 === 0
+                            ? "#0d1a08"
+                            : "#0a1206",
+                        border: isCurrentSession
+                          ? "1px solid #5D8A2C66"
+                          : "1px solid transparent",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "7px",
+                          color:
+                            i === 0
+                              ? "#FFD700"
+                              : i === 1
+                                ? "#C0C0C0"
+                                : i === 2
+                                  ? "#CD7F32"
+                                  : "#3a5a20",
+                          fontFamily: "inherit",
+                          width: "18px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {i === 0
+                          ? "🥇"
+                          : i === 1
+                            ? "🥈"
+                            : i === 2
+                              ? "🥉"
+                              : `#${i + 1}`}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "6px",
+                          color: isCurrentSession ? "#a0d060" : "#8ab060",
+                          fontFamily: "inherit",
+                          flex: 1,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {entry.name.slice(0, 12)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "7px",
+                          color: "#F5C518",
+                          fontFamily: "inherit",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {formatNumber(entry.cookies)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
