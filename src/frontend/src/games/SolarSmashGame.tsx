@@ -68,7 +68,6 @@ function buildPlanetCanvas(generation: number): HTMLCanvasElement {
     // Earth-like
     ctx.fillStyle = "#1a4a8a";
     ctx.fillRect(0, 0, TEX_SIZE, TEX_SIZE);
-    // continents
     for (let i = 0; i < 8; i++) {
       const x = rng() * TEX_SIZE;
       const y = rng() * TEX_SIZE;
@@ -84,7 +83,6 @@ function buildPlanetCanvas(generation: number): HTMLCanvasElement {
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
     }
-    // ice caps
     const capG1 = ctx.createLinearGradient(0, 0, 0, 60);
     capG1.addColorStop(0, "rgba(240,248,255,0.9)");
     capG1.addColorStop(1, "rgba(240,248,255,0)");
@@ -121,7 +119,6 @@ function buildPlanetCanvas(generation: number): HTMLCanvasElement {
     baseG.addColorStop(1, "#8b6010");
     ctx.fillStyle = baseG;
     ctx.fillRect(0, 0, TEX_SIZE, TEX_SIZE);
-    // bands
     for (let i = 0; i < 10; i++) {
       const y = rng() * TEX_SIZE;
       const h = 10 + rng() * 30;
@@ -177,6 +174,7 @@ interface HitFlash {
 
 interface PlanetSceneProps {
   generation: number;
+  planetScale: number;
   weaponRef: React.MutableRefObject<number>;
   onHit: (damage: number) => void;
   exploding: boolean;
@@ -185,12 +183,14 @@ interface PlanetSceneProps {
 
 function PlanetScene({
   generation,
+  planetScale,
   weaponRef,
   onHit,
   exploding,
   onExplosionDone,
 }: PlanetSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
+  const atmoRef = useRef<THREE.Mesh>(null!);
   const textureRef = useRef<THREE.CanvasTexture | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -202,7 +202,7 @@ function PlanetScene({
   const particleColRef = useRef<Float32Array | null>(null);
   const particleAgeRef = useRef<Float32Array | null>(null);
   const explosionInitRef = useRef(false);
-  const scaleRef = useRef(1);
+  const scaleRef = useRef(planetScale);
   const doneFiredRef = useRef(false);
 
   const PARTICLE_COUNT = 200;
@@ -216,15 +216,19 @@ function PlanetScene({
     if (meshRef.current) {
       (meshRef.current.material as THREE.MeshPhongMaterial).map = tex;
       (meshRef.current.material as THREE.MeshPhongMaterial).needsUpdate = true;
+      meshRef.current.scale.setScalar(planetScale);
     }
-    scaleRef.current = 1;
+    if (atmoRef.current) {
+      atmoRef.current.scale.setScalar(planetScale);
+    }
+    scaleRef.current = planetScale;
     explosionInitRef.current = false;
     doneFiredRef.current = false;
     setFlashes([]);
     return () => {
       tex.dispose();
     };
-  }, [generation]);
+  }, [generation, planetScale]);
 
   useEffect(() => {
     if (!exploding) return;
@@ -240,7 +244,7 @@ function PlanetScene({
       pos[i * 3] = (Math.random() - 0.5) * 0.2;
       pos[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
-      const speed = 1 + Math.random() * 4;
+      const speed = (1 + Math.random() * 4) * planetScale;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       vel[i * 3] = speed * Math.sin(phi) * Math.cos(theta);
@@ -264,7 +268,7 @@ function PlanetScene({
       geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
       geo.attributes.position.needsUpdate = true;
     }
-  }, [exploding]);
+  }, [exploding, planetScale]);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
@@ -274,8 +278,8 @@ function PlanetScene({
       scaleRef.current = scaleRef.current * (1 - delta * 2);
       if (scaleRef.current < 0.001) scaleRef.current = 0.001;
       meshRef.current.scale.setScalar(scaleRef.current);
+      if (atmoRef.current) atmoRef.current.scale.setScalar(scaleRef.current);
 
-      // animate particles
       if (
         particlePosRef.current &&
         particleVelRef.current &&
@@ -303,8 +307,6 @@ function PlanetScene({
         }
       }
     }
-
-    // update flashes via state isn't ideal in useFrame — handled separately
   });
 
   const handleClick = useCallback(
@@ -350,13 +352,17 @@ function PlanetScene({
 
       {/* Planet */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: R3F mesh does not support onKeyDown */}
-      <mesh ref={meshRef} onClick={handleClick}>
+      <mesh
+        ref={meshRef}
+        onClick={handleClick}
+        scale={[planetScale, planetScale, planetScale]}
+      >
         <sphereGeometry args={[2, 64, 64]} />
         <meshPhongMaterial shininess={15} />
       </mesh>
 
       {/* Atmosphere */}
-      <mesh>
+      <mesh ref={atmoRef} scale={[planetScale, planetScale, planetScale]}>
         <sphereGeometry args={[2.08, 32, 32]} />
         <meshPhongMaterial
           color="#4488ff"
@@ -369,7 +375,7 @@ function PlanetScene({
       {/* Hit flashes */}
       {flashes.map((flash) => (
         <mesh key={flash.id} position={flash.position}>
-          <sphereGeometry args={[0.18, 8, 8]} />
+          <sphereGeometry args={[0.18 * planetScale, 8, 8]} />
           <meshBasicMaterial color={flash.color} transparent opacity={0.8} />
         </mesh>
       ))}
@@ -379,7 +385,7 @@ function PlanetScene({
         <points ref={pointsRef}>
           <bufferGeometry />
           <pointsMaterial
-            size={0.08}
+            size={0.08 * planetScale}
             vertexColors
             blending={THREE.AdditiveBlending}
             transparent
@@ -396,18 +402,22 @@ interface Props {
 }
 
 export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
-  const [hp, setHp] = useState(1000);
+  const [planetsDestroyed, setPlanetsDestroyed] = useState(0);
+  const maxHp = Math.round(1000 * (1 + planetsDestroyed * 0.3));
+  const [hp, setHp] = useState(maxHp);
   const [score, setScore] = useState(0);
   const [selectedWeapon, setSelectedWeapon] = useState(0);
   const [exploding, setExploding] = useState(false);
   const [generation, setGeneration] = useState(0);
-  const [planetsDestroyed, setPlanetsDestroyed] = useState(0);
   const [showDestroyed, setShowDestroyed] = useState(false);
   const [hitScores, setHitScores] = useState<
     { id: number; damage: number; x: number; y: number }[]
   >([]);
   const hitScoreIdRef = useRef(0);
   const selectedWeaponRef = useRef(selectedWeapon);
+
+  // Planet scale grows 30% each destruction
+  const planetScale = 1 + planetsDestroyed * 0.3;
 
   useEffect(() => {
     selectedWeaponRef.current = selectedWeapon;
@@ -434,15 +444,19 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
   }, []);
 
   const handleExplosionDone = useCallback(() => {
-    setHp(1000);
+    setPlanetsDestroyed((d) => {
+      const nextD = d + 1;
+      const nextMaxHp = Math.round(1000 * (1 + nextD * 0.3));
+      setHp(nextMaxHp);
+      return nextD;
+    });
     setExploding(false);
     setShowDestroyed(false);
     setGeneration((g) => g + 1);
-    setPlanetsDestroyed((d) => d + 1);
     setScore((s) => s + 500);
   }, []);
 
-  const hpPct = hp / 1000;
+  const hpPct = hp / maxHp;
   const hpColor = hpPct > 0.6 ? "#44ff88" : hpPct > 0.3 ? "#ffaa00" : "#ff4444";
 
   return (
@@ -473,6 +487,7 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
       >
         <PlanetScene
           generation={generation}
+          planetScale={planetScale}
           weaponRef={selectedWeaponRef}
           onHit={handleHit}
           exploding={exploding}
@@ -520,11 +535,11 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
             marginTop: 2,
           }}
         >
-          {hp} / 1000
+          {hp} / {maxHp}
         </div>
       </div>
 
-      {/* Score */}
+      {/* Score + size indicator */}
       <div
         style={{ position: "absolute", top: 12, right: 12, textAlign: "right" }}
       >
@@ -549,6 +564,18 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
         >
           🪐 {planetsDestroyed} destroyed
         </div>
+        {planetsDestroyed > 0 && (
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: "#ff9944",
+              marginTop: 1,
+            }}
+          >
+            SIZE x{planetScale.toFixed(1)}
+          </div>
+        )}
       </div>
 
       {/* Floating hit scores */}
