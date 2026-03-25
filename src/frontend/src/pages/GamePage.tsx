@@ -158,7 +158,11 @@ export default function GamePage({ game, onBack }: Props) {
                   <MemoryMatchGame key={gameKey} onGameOver={handleGameOver} />
                 )}
                 {game.id === "flappy-bird" && (
-                  <FlappyBirdGame key={gameKey} onGameOver={handleGameOver} />
+                  <FlappyBirdGame
+                    key={gameKey}
+                    onGameOver={handleGameOver}
+                    isFullscreen={isFullscreen}
+                  />
                 )}
                 {game.id === "road-rush" && (
                   <RoadRushGame key={gameKey} onGameOver={handleGameOver} />
@@ -185,6 +189,7 @@ export default function GamePage({ game, onBack }: Props) {
                   <CookieClickerGame
                     key={gameKey}
                     onGameOver={handleGameOver}
+                    isFullscreen={isFullscreen}
                   />
                 )}
                 {game.id === "solar-smash" && (
@@ -197,7 +202,11 @@ export default function GamePage({ game, onBack }: Props) {
                   <SkyAce key={gameKey} onGameOver={handleGameOver} />
                 )}
                 {game.id === "blackjack" && (
-                  <BlackjackGame key={gameKey} onGameOver={handleGameOver} />
+                  <BlackjackGame
+                    key={gameKey}
+                    onGameOver={handleGameOver}
+                    isFullscreen={isFullscreen}
+                  />
                 )}
                 {game.id === "pokemon-ruby" && (
                   <PokemonRubyGame key={gameKey} onGameOver={handleGameOver} />

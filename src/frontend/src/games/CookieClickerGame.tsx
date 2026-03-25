@@ -209,9 +209,13 @@ function saveCookieLeaderboard(entries: LeaderboardEntry[]) {
 
 interface Props {
   onGameOver?: (score: number) => void;
+  isFullscreen?: boolean;
 }
 
-export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
+export default function CookieClickerGame({
+  onGameOver: _onGameOver,
+  isFullscreen = false,
+}: Props) {
   const [cookies, setCookies] = useState(0);
   const [totalCookies, setTotalCookies] = useState(0);
   const [upgrades, setUpgrades] = useState<Upgrade[]>(
@@ -236,6 +240,10 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
   const [showSaveInput, setShowSaveInput] = useState(false);
   const [savedThisSession, setSavedThisSession] = useState(false);
   const [lastSavedCookies, setLastSavedCookies] = useState<number | null>(null);
+
+  // Scale factor for fullscreen mode
+  const scale = isFullscreen ? 1.6 : 1;
+  const fs = (base: number) => Math.round(base * scale);
 
   useEffect(() => {
     cookiesRef.current = cookies;
@@ -375,12 +383,16 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
   return (
     <div
       className="flex flex-col md:flex-row w-full gap-0"
-      style={{ minHeight: "520px", fontFamily: "'Press Start 2P', monospace" }}
+      style={{
+        minHeight: `${fs(520)}px`,
+        fontFamily: "'Press Start 2P', monospace",
+      }}
     >
       {/* Left: cookie area */}
       <div
-        className="flex-1 flex flex-col items-center justify-start pt-6 pb-4 px-4"
+        className="flex-1 flex flex-col items-center justify-start pb-4 px-4"
         style={{
+          paddingTop: `${fs(24)}px`,
           background: "linear-gradient(180deg, #0e1a05 0%, #1a2e0a 100%)",
           borderRight: "2px solid #2a4a10",
           position: "relative",
@@ -403,7 +415,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
         <div className="text-center mb-2 z-10">
           <p
             style={{
-              fontSize: "22px",
+              fontSize: `${fs(22)}px`,
               color: "#F5C518",
               textShadow: "2px 2px 0 #7a4e00, 0 0 20px #F5C51866",
               lineHeight: 1.2,
@@ -413,7 +425,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           </p>
           <p
             style={{
-              fontSize: "8px",
+              fontSize: `${fs(8)}px`,
               color: "#a0c060",
               marginTop: "2px",
               letterSpacing: "2px",
@@ -426,12 +438,20 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
         {/* CPS display */}
         <div className="text-center mb-4 z-10">
           <p
-            style={{ fontSize: "7px", color: "#7a9a50", letterSpacing: "1px" }}
+            style={{
+              fontSize: `${fs(7)}px`,
+              color: "#7a9a50",
+              letterSpacing: "1px",
+            }}
           >
             {cps.toFixed(1)} per second
           </p>
           <p
-            style={{ fontSize: "7px", color: "#6a8a40", letterSpacing: "1px" }}
+            style={{
+              fontSize: `${fs(7)}px`,
+              color: "#6a8a40",
+              letterSpacing: "1px",
+            }}
           >
             {formatNumber(Math.floor(totalCookies))} total baked
           </p>
@@ -457,8 +477,8 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           }}
         >
           <svg
-            width="180"
-            height="180"
+            width={fs(180)}
+            height={fs(180)}
             viewBox="0 0 16 16"
             role="img"
             aria-label="Pixel art cookie"
@@ -513,7 +533,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
         {/* Click hint */}
         <p
           className="mt-3 z-10"
-          style={{ fontSize: "7px", color: "#4a6a30", letterSpacing: "2px" }}
+          style={{
+            fontSize: `${fs(7)}px`,
+            color: "#4a6a30",
+            letterSpacing: "2px",
+          }}
         >
           CLICK THE COOKIE!
         </p>
@@ -528,8 +552,8 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
               key={p.id}
               style={{
                 position: "absolute",
-                left: `calc(50% - 90px + ${p.x}px)`,
-                top: `${140 + p.y}px`,
+                left: `calc(50% - ${fs(90)}px + ${p.x}px)`,
+                top: `${fs(140) + p.y}px`,
                 fontSize: `${p.size}px`,
                 color: p.color,
                 opacity: p.life / p.maxLife,
@@ -549,8 +573,8 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
       {/* Right: upgrades shop */}
       <div
         style={{
-          width: "280px",
-          minWidth: "240px",
+          width: `${fs(280)}px`,
+          minWidth: `${fs(240)}px`,
           background: "#0a1208",
           display: "flex",
           flexDirection: "column",
@@ -561,14 +585,14 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
         {/* Shop header */}
         <div
           style={{
-            padding: "10px 12px 8px",
+            padding: `${fs(10)}px ${fs(12)}px ${fs(8)}px`,
             borderBottom: "2px solid #2a4a10",
             background: "#0e1a05",
           }}
         >
           <p
             style={{
-              fontSize: "9px",
+              fontSize: `${fs(9)}px`,
               color: "#5D8A2C",
               textShadow: "1px 1px 0 #1a3a00",
               letterSpacing: "2px",
@@ -583,7 +607,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: "8px",
+            padding: `${fs(8)}px`,
             display: "flex",
             flexDirection: "column",
             gap: "4px",
@@ -592,7 +616,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           {/* CPS Section */}
           <div
             style={{
-              fontSize: "7px",
+              fontSize: `${fs(7)}px`,
               color: "#4a7a20",
               letterSpacing: "2px",
               padding: "4px 2px 2px",
@@ -619,18 +643,18 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     : "linear-gradient(135deg, #111808, #192410)",
                   border: canAfford ? "2px solid #4a7a20" : "2px solid #1a2a10",
                   borderRadius: "2px",
-                  padding: "7px 10px",
+                  padding: `${fs(7)}px ${fs(10)}px`,
                   cursor: canAfford ? "pointer" : "not-allowed",
                   opacity: canAfford ? 1 : 0.55,
                   textAlign: "left",
                   transition: "all 0.1s",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: `${fs(8)}px`,
                   boxShadow: canAfford ? "0 0 8px #4a7a2033" : "none",
                 }}
               >
-                <span style={{ fontSize: "16px", flexShrink: 0 }}>
+                <span style={{ fontSize: `${fs(16)}px`, flexShrink: 0 }}>
                   {upgrade.emoji}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -644,7 +668,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   >
                     <span
                       style={{
-                        fontSize: "7px",
+                        fontSize: `${fs(7)}px`,
                         color: canAfford ? "#c8e890" : "#607050",
                         letterSpacing: "1px",
                       }}
@@ -653,7 +677,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "8px",
+                        fontSize: `${fs(8)}px`,
                         color: canAfford ? "#F5C518" : "#705030",
                         fontWeight: "bold",
                         flexShrink: 0,
@@ -671,7 +695,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   >
                     <span
                       style={{
-                        fontSize: "7px",
+                        fontSize: `${fs(7)}px`,
                         color: canAfford ? "#F5C518" : "#705030",
                         letterSpacing: "0.5px",
                       }}
@@ -680,7 +704,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "6px",
+                        fontSize: `${fs(6)}px`,
                         color: "#7a9a50",
                         letterSpacing: "0.5px",
                       }}
@@ -698,7 +722,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           {/* Click Power Section */}
           <div
             style={{
-              fontSize: "7px",
+              fontSize: `${fs(7)}px`,
               color: "#c8901a",
               letterSpacing: "2px",
               padding: "8px 2px 2px",
@@ -726,18 +750,18 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     : "linear-gradient(135deg, #1a1208, #241808)",
                   border: canAfford ? "2px solid #8a5a20" : "2px solid #2a1a08",
                   borderRadius: "2px",
-                  padding: "7px 10px",
+                  padding: `${fs(7)}px ${fs(10)}px`,
                   cursor: canAfford ? "pointer" : "not-allowed",
                   opacity: canAfford ? 1 : 0.55,
                   textAlign: "left",
                   transition: "all 0.1s",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: `${fs(8)}px`,
                   boxShadow: canAfford ? "0 0 8px #8a5a2033" : "none",
                 }}
               >
-                <span style={{ fontSize: "16px", flexShrink: 0 }}>
+                <span style={{ fontSize: `${fs(16)}px`, flexShrink: 0 }}>
                   {upgrade.emoji}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -751,7 +775,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   >
                     <span
                       style={{
-                        fontSize: "7px",
+                        fontSize: `${fs(7)}px`,
                         color: canAfford ? "#f0c880" : "#706040",
                         letterSpacing: "1px",
                       }}
@@ -760,7 +784,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "8px",
+                        fontSize: `${fs(8)}px`,
                         color: canAfford ? "#F5C518" : "#705030",
                         fontWeight: "bold",
                         flexShrink: 0,
@@ -778,7 +802,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   >
                     <span
                       style={{
-                        fontSize: "7px",
+                        fontSize: `${fs(7)}px`,
                         color: canAfford ? "#F5C518" : "#705030",
                         letterSpacing: "0.5px",
                       }}
@@ -787,7 +811,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "6px",
+                        fontSize: `${fs(6)}px`,
                         color: "#c8901a",
                         letterSpacing: "0.5px",
                       }}
@@ -806,14 +830,14 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
         {/* Stats footer */}
         <div
           style={{
-            padding: "8px 12px",
+            padding: `${fs(8)}px ${fs(12)}px`,
             borderTop: "2px solid #2a4a10",
             background: "#0e1a05",
           }}
         >
           <p
             style={{
-              fontSize: "6px",
+              fontSize: `${fs(6)}px`,
               color: "#4a6a30",
               letterSpacing: "1px",
               marginBottom: "6px",
@@ -843,11 +867,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   data-ocid="cookie.input"
                   style={{
                     fontFamily: "inherit",
-                    fontSize: "7px",
+                    fontSize: `${fs(7)}px`,
                     background: "#111",
                     border: "1px solid #5D8A2C66",
                     color: "#c8e890",
-                    padding: "4px 6px",
+                    padding: `${fs(4)}px ${fs(6)}px`,
                     borderRadius: "2px",
                     outline: "none",
                     flex: 1,
@@ -861,11 +885,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   data-ocid="cookie.save_button"
                   style={{
                     fontFamily: "inherit",
-                    fontSize: "7px",
+                    fontSize: `${fs(7)}px`,
                     background: "#5D8A2C33",
                     border: "1px solid #5D8A2C",
                     color: "#a0d060",
-                    padding: "4px 6px",
+                    padding: `${fs(4)}px ${fs(6)}px`,
                     borderRadius: "2px",
                     cursor: "pointer",
                     flexShrink: 0,
@@ -879,11 +903,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                   data-ocid="cookie.cancel_button"
                   style={{
                     fontFamily: "inherit",
-                    fontSize: "7px",
+                    fontSize: `${fs(7)}px`,
                     background: "#33111133",
                     border: "1px solid #661111",
                     color: "#d06060",
-                    padding: "4px 6px",
+                    padding: `${fs(4)}px ${fs(6)}px`,
                     borderRadius: "2px",
                     cursor: "pointer",
                     flexShrink: 0,
@@ -899,11 +923,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                 data-ocid="cookie.open_modal_button"
                 style={{
                   fontFamily: "inherit",
-                  fontSize: "7px",
+                  fontSize: `${fs(7)}px`,
                   background: "#F5C51822",
                   border: "1px solid #F5C51866",
                   color: "#F5C518",
-                  padding: "4px 8px",
+                  padding: `${fs(4)}px ${fs(8)}px`,
                   borderRadius: "2px",
                   cursor: "pointer",
                   width: "100%",
@@ -917,7 +941,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
           ) : (
             <div
               style={{
-                fontSize: "6px",
+                fontSize: `${fs(6)}px`,
                 color: isInTopTen ? "#F5C518" : "#555",
                 letterSpacing: "1px",
                 marginBottom: "4px",
@@ -934,11 +958,11 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             data-ocid="cookie.toggle"
             style={{
               fontFamily: "inherit",
-              fontSize: "7px",
+              fontSize: `${fs(7)}px`,
               background: showLeaderboard ? "#5D8A2C33" : "#111",
               border: `1px solid ${showLeaderboard ? "#5D8A2C" : "#333"}`,
               color: showLeaderboard ? "#a0d060" : "#555",
-              padding: "4px 8px",
+              padding: `${fs(4)}px ${fs(8)}px`,
               borderRadius: "2px",
               cursor: "pointer",
               width: "100%",
@@ -955,15 +979,15 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             style={{
               background: "#060e04",
               borderTop: "2px solid #5D8A2C44",
-              padding: "10px",
-              maxHeight: "260px",
+              padding: `${fs(10)}px`,
+              maxHeight: `${fs(260)}px`,
               overflowY: "auto",
             }}
             data-ocid="cookie.panel"
           >
             <div
               style={{
-                fontSize: "8px",
+                fontSize: `${fs(8)}px`,
                 color: "#5D8A2C",
                 letterSpacing: "2px",
                 marginBottom: "8px",
@@ -975,7 +999,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
             {leaderboard.length === 0 ? (
               <div
                 style={{
-                  fontSize: "6px",
+                  fontSize: `${fs(6)}px`,
                   color: "#2a4a10",
                   textAlign: "center",
                   padding: "8px",
@@ -1016,7 +1040,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                     >
                       <span
                         style={{
-                          fontSize: "7px",
+                          fontSize: `${fs(7)}px`,
                           color:
                             i === 0
                               ? "#FFD700"
@@ -1040,7 +1064,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                       </span>
                       <span
                         style={{
-                          fontSize: "6px",
+                          fontSize: `${fs(6)}px`,
                           color: isCurrentSession ? "#a0d060" : "#8ab060",
                           fontFamily: "inherit",
                           flex: 1,
@@ -1053,7 +1077,7 @@ export default function CookieClickerGame({ onGameOver: _onGameOver }: Props) {
                       </span>
                       <span
                         style={{
-                          fontSize: "7px",
+                          fontSize: `${fs(7)}px`,
                           color: "#F5C518",
                           fontFamily: "inherit",
                           flexShrink: 0,

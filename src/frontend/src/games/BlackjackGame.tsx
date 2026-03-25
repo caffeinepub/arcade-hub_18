@@ -92,9 +92,13 @@ const BET_OPTIONS = [25, 50, 100, 250, 500];
 
 interface Props {
   onGameOver: (score: number) => void;
+  isFullscreen?: boolean;
 }
 
-export default function BlackjackGame({ onGameOver }: Props) {
+export default function BlackjackGame({
+  onGameOver,
+  isFullscreen = false,
+}: Props) {
   const { theme } = useTheme();
   const [chips, setChips] = useState<number>(() => {
     const stored = localStorage.getItem("blackjack-chips");
@@ -128,6 +132,10 @@ export default function BlackjackGame({ onGameOver }: Props) {
       if (dealerTimerRef.current) clearTimeout(dealerTimerRef.current);
     };
   }, []);
+
+  // Scale factor for fullscreen mode
+  const scale = isFullscreen ? 1.6 : 1;
+  const fs = (base: number) => Math.round(base * scale);
 
   // Theme-based colors
   const themeColors = {
@@ -344,26 +352,33 @@ export default function BlackjackGame({ onGameOver }: Props) {
     lastSavedChips !== null &&
     leaderboard.some((e) => e.chips === lastSavedChips);
 
+  const cardW = fs(64);
+  const cardH = fs(96);
+
   return (
     <div
-      className="relative flex flex-col items-center gap-4 p-4 rounded-xl select-none"
+      className="relative flex flex-col items-center gap-4 rounded-xl select-none"
       style={{
         background: `radial-gradient(ellipse at center, ${tc.felt} 0%, #0a0a0a 100%)`,
         border: `2px solid ${tc.feltBorder}33`,
-        minWidth: 480,
-        minHeight: 560,
+        width: isFullscreen ? "100%" : undefined,
+        maxWidth: isFullscreen ? 900 : undefined,
+        minWidth: isFullscreen ? undefined : 480,
+        minHeight: isFullscreen ? "80vh" : 560,
         fontFamily: "'Press Start 2P', monospace",
+        padding: isFullscreen ? "32px 40px" : "16px",
+        justifyContent: isFullscreen ? "center" : undefined,
       }}
     >
       {/* Header */}
       <div className="flex w-full justify-between items-center mb-1">
         <div
-          className="text-xs px-3 py-1 rounded"
+          className="px-3 py-1 rounded"
           style={{
             color: tc.accent,
             border: `1px solid ${tc.accent}55`,
             background: `${tc.accent}11`,
-            fontSize: "9px",
+            fontSize: `${fs(9)}px`,
             fontFamily: "inherit",
           }}
         >
@@ -372,12 +387,12 @@ export default function BlackjackGame({ onGameOver }: Props) {
         <div className="flex gap-2 items-center">
           {bet > 0 && (
             <div
-              className="text-xs px-3 py-1 rounded"
+              className="px-3 py-1 rounded"
               style={{
                 color: "#F5C518",
                 border: "1px solid #F5C51855",
                 background: "#F5C51811",
-                fontSize: "9px",
+                fontSize: `${fs(9)}px`,
                 fontFamily: "inherit",
               }}
             >
@@ -390,13 +405,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
             data-ocid="blackjack.toggle"
             className="px-2 py-1 rounded transition-all hover:scale-105 active:scale-95"
             style={{
-              fontSize: "8px",
+              fontSize: `${fs(8)}px`,
               fontFamily: "inherit",
               background: showLeaderboard ? `${tc.accent}33` : "#111",
               border: `1px solid ${showLeaderboard ? tc.accent : "#444"}`,
               color: showLeaderboard ? tc.accent : "#888",
               cursor: "pointer",
               whiteSpace: "nowrap",
+              padding: isFullscreen ? "8px 14px" : undefined,
             }}
           >
             🏆 SCORES
@@ -408,7 +424,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
       <div className="flex flex-col items-center gap-2 w-full">
         <div
           style={{
-            fontSize: "9px",
+            fontSize: `${fs(9)}px`,
             color: "#aaa",
             fontFamily: "inherit",
             letterSpacing: "0.1em",
@@ -421,16 +437,22 @@ export default function BlackjackGame({ onGameOver }: Props) {
               ? " — ?"
               : ""}
         </div>
-        <div className="flex gap-2 flex-wrap justify-center min-h-[100px] items-center">
+        <div
+          className="flex gap-2 flex-wrap justify-center items-center"
+          style={{ minHeight: cardH + 4 }}
+        >
           {dealerHand.map((card, i) => (
             <CardView
               key={`d-${i}-${card.rank}${card.suit}`}
               card={card}
               accent={tc.accent}
+              width={cardW}
+              height={cardH}
+              scale={scale}
             />
           ))}
           {dealerHand.length === 0 && (
-            <div style={{ color: "#555", fontSize: "10px" }}>
+            <div style={{ color: "#555", fontSize: `${fs(10)}px` }}>
               Waiting for deal...
             </div>
           )}
@@ -450,7 +472,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
       <div className="flex flex-col items-center gap-2 w-full">
         <div
           style={{
-            fontSize: "9px",
+            fontSize: `${fs(9)}px`,
             color: "#aaa",
             fontFamily: "inherit",
             letterSpacing: "0.1em",
@@ -458,16 +480,22 @@ export default function BlackjackGame({ onGameOver }: Props) {
         >
           YOU{playerHand.length > 0 ? ` — ${playerScore}` : ""}
         </div>
-        <div className="flex gap-2 flex-wrap justify-center min-h-[100px] items-center">
+        <div
+          className="flex gap-2 flex-wrap justify-center items-center"
+          style={{ minHeight: cardH + 4 }}
+        >
           {playerHand.map((card, i) => (
             <CardView
               key={`p-${i}-${card.rank}${card.suit}`}
               card={card}
               accent={tc.accent}
+              width={cardW}
+              height={cardH}
+              scale={scale}
             />
           ))}
           {playerHand.length === 0 && (
-            <div style={{ color: "#555", fontSize: "10px" }}>
+            <div style={{ color: "#555", fontSize: `${fs(10)}px` }}>
               Place your bet!
             </div>
           )}
@@ -479,15 +507,27 @@ export default function BlackjackGame({ onGameOver }: Props) {
         <div
           className="text-center px-4 py-2 rounded-lg"
           style={{
-            fontSize: "11px",
+            fontSize: `${fs(11)}px`,
             color:
               outcome === "win" || outcome === "blackjack"
                 ? "#4CAF50"
                 : outcome === "push"
                   ? "#F5C518"
                   : "#f44336",
-            border: `1px solid ${outcome === "win" || outcome === "blackjack" ? "#4CAF50" : outcome === "push" ? "#F5C518" : "#f44336"}55`,
-            background: `${outcome === "win" || outcome === "blackjack" ? "#4CAF50" : outcome === "push" ? "#F5C518" : "#f44336"}11`,
+            border: `1px solid ${
+              outcome === "win" || outcome === "blackjack"
+                ? "#4CAF50"
+                : outcome === "push"
+                  ? "#F5C518"
+                  : "#f44336"
+            }55`,
+            background: `${
+              outcome === "win" || outcome === "blackjack"
+                ? "#4CAF50"
+                : outcome === "push"
+                  ? "#F5C518"
+                  : "#f44336"
+            }11`,
             fontFamily: "inherit",
             letterSpacing: "0.05em",
           }}
@@ -501,7 +541,11 @@ export default function BlackjackGame({ onGameOver }: Props) {
         {phase === "bet" && (
           <>
             <div
-              style={{ fontSize: "8px", color: "#888", fontFamily: "inherit" }}
+              style={{
+                fontSize: `${fs(8)}px`,
+                color: "#888",
+                fontFamily: "inherit",
+              }}
             >
               SELECT BET:
             </div>
@@ -513,14 +557,15 @@ export default function BlackjackGame({ onGameOver }: Props) {
                   onClick={() => addBet(amt)}
                   data-ocid="blackjack.bet_button"
                   disabled={amt > chips}
-                  className="px-3 py-2 rounded transition-all hover:scale-105 active:scale-95"
+                  className="rounded transition-all hover:scale-105 active:scale-95"
                   style={{
-                    fontSize: "9px",
+                    fontSize: `${fs(9)}px`,
                     fontFamily: "inherit",
                     background: amt > chips ? "#222" : `${tc.accent}22`,
                     border: `1px solid ${amt > chips ? "#444" : `${tc.accent}66`}`,
                     color: amt > chips ? "#555" : tc.accent,
                     cursor: amt > chips ? "not-allowed" : "pointer",
+                    padding: isFullscreen ? "10px 18px" : "8px 12px",
                   }}
                 >
                   +${amt}
@@ -532,13 +577,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
                 type="button"
                 onClick={clearBet}
                 data-ocid="blackjack.cancel_button"
-                className="px-4 py-2 rounded transition-all hover:scale-105 active:scale-95"
+                className="rounded transition-all hover:scale-105 active:scale-95"
                 style={{
-                  fontSize: "9px",
+                  fontSize: `${fs(9)}px`,
                   fontFamily: "inherit",
                   background: "#f4433622",
                   border: "1px solid #f4433666",
                   color: "#f44336",
+                  padding: isFullscreen ? "10px 20px" : "8px 16px",
                 }}
               >
                 CLEAR
@@ -548,14 +594,15 @@ export default function BlackjackGame({ onGameOver }: Props) {
                 onClick={startDeal}
                 data-ocid="blackjack.primary_button"
                 disabled={bet === 0 || bet > chips}
-                className="px-6 py-2 rounded transition-all hover:scale-105 active:scale-95"
+                className="rounded transition-all hover:scale-105 active:scale-95"
                 style={{
-                  fontSize: "9px",
+                  fontSize: `${fs(9)}px`,
                   fontFamily: "inherit",
                   background: bet === 0 ? "#222" : `${tc.accent}33`,
                   border: `1px solid ${bet === 0 ? "#444" : tc.accent}`,
                   color: bet === 0 ? "#555" : tc.accent,
                   cursor: bet === 0 ? "not-allowed" : "pointer",
+                  padding: isFullscreen ? "10px 28px" : "8px 24px",
                 }}
               >
                 DEAL ▶
@@ -570,13 +617,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
               type="button"
               onClick={hit}
               data-ocid="blackjack.primary_button"
-              className="px-5 py-2 rounded transition-all hover:scale-105 active:scale-95"
+              className="rounded transition-all hover:scale-105 active:scale-95"
               style={{
-                fontSize: "9px",
+                fontSize: `${fs(9)}px`,
                 fontFamily: "inherit",
                 background: `${tc.accent}33`,
                 border: `1px solid ${tc.accent}`,
                 color: tc.accent,
+                padding: isFullscreen ? "12px 28px" : "8px 20px",
               }}
             >
               HIT
@@ -585,13 +633,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
               type="button"
               onClick={stand}
               data-ocid="blackjack.secondary_button"
-              className="px-5 py-2 rounded transition-all hover:scale-105 active:scale-95"
+              className="rounded transition-all hover:scale-105 active:scale-95"
               style={{
-                fontSize: "9px",
+                fontSize: `${fs(9)}px`,
                 fontFamily: "inherit",
                 background: "#F5C51822",
                 border: "1px solid #F5C518",
                 color: "#F5C518",
+                padding: isFullscreen ? "12px 28px" : "8px 20px",
               }}
             >
               STAND
@@ -601,13 +650,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
                 type="button"
                 onClick={doubleDown}
                 data-ocid="blackjack.toggle"
-                className="px-5 py-2 rounded transition-all hover:scale-105 active:scale-95"
+                className="rounded transition-all hover:scale-105 active:scale-95"
                 style={{
-                  fontSize: "9px",
+                  fontSize: `${fs(9)}px`,
                   fontFamily: "inherit",
                   background: "#9C27B022",
                   border: "1px solid #9C27B0",
                   color: "#9C27B0",
+                  padding: isFullscreen ? "12px 20px" : "8px 20px",
                 }}
               >
                 DOUBLE DOWN
@@ -618,7 +668,11 @@ export default function BlackjackGame({ onGameOver }: Props) {
 
         {phase === "dealerTurn" && (
           <div
-            style={{ fontSize: "9px", color: "#888", fontFamily: "inherit" }}
+            style={{
+              fontSize: `${fs(9)}px`,
+              color: "#888",
+              fontFamily: "inherit",
+            }}
           >
             DEALER DRAWING...
           </div>
@@ -641,14 +695,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
                   data-ocid="blackjack.input"
                   style={{
                     fontFamily: "inherit",
-                    fontSize: "8px",
+                    fontSize: `${fs(8)}px`,
                     background: "#111",
                     border: `1px solid ${tc.accent}66`,
                     color: tc.accent,
-                    padding: "6px 10px",
+                    padding: isFullscreen ? "10px 14px" : "6px 10px",
                     borderRadius: "4px",
                     outline: "none",
-                    width: "130px",
+                    width: isFullscreen ? 200 : 130,
                     letterSpacing: "1px",
                   }}
                 />
@@ -656,15 +710,16 @@ export default function BlackjackGame({ onGameOver }: Props) {
                   type="button"
                   onClick={handleSaveScore}
                   data-ocid="blackjack.save_button"
-                  className="px-3 py-1 rounded transition-all hover:scale-105 active:scale-95"
+                  className="rounded transition-all hover:scale-105 active:scale-95"
                   style={{
-                    fontSize: "8px",
+                    fontSize: `${fs(8)}px`,
                     fontFamily: "inherit",
                     background: `${tc.accent}33`,
                     border: `1px solid ${tc.accent}`,
                     color: tc.accent,
                     cursor: "pointer",
                     whiteSpace: "nowrap",
+                    padding: isFullscreen ? "10px 18px" : "4px 12px",
                   }}
                 >
                   🏆 SAVE
@@ -673,7 +728,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
             ) : (
               <div
                 style={{
-                  fontSize: "8px",
+                  fontSize: `${fs(8)}px`,
                   color: isInTopTen ? "#F5C518" : "#888",
                   fontFamily: "inherit",
                 }}
@@ -685,13 +740,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
               type="button"
               onClick={newRound}
               data-ocid="blackjack.primary_button"
-              className="px-8 py-2 rounded transition-all hover:scale-105 active:scale-95"
+              className="rounded transition-all hover:scale-105 active:scale-95"
               style={{
-                fontSize: "9px",
+                fontSize: `${fs(9)}px`,
                 fontFamily: "inherit",
                 background: `${tc.accent}33`,
                 border: `1px solid ${tc.accent}`,
                 color: tc.accent,
+                padding: isFullscreen ? "12px 36px" : "8px 32px",
               }}
             >
               {chips <= 0 ? "RESTART (FREE $1000)" : "NEXT ROUND ▶"}
@@ -704,7 +760,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
       {chips > 0 && chips < 100 && phase === "bet" && (
         <div
           style={{
-            fontSize: "8px",
+            fontSize: `${fs(8)}px`,
             color: "#f44336",
             fontFamily: "inherit",
             textAlign: "center",
@@ -722,14 +778,14 @@ export default function BlackjackGame({ onGameOver }: Props) {
           style={{
             background: "#080808",
             border: `2px solid ${tc.accent}44`,
-            padding: "12px",
+            padding: isFullscreen ? "20px 24px" : "12px",
             marginTop: "4px",
           }}
           data-ocid="blackjack.panel"
         >
           <div
             style={{
-              fontSize: "9px",
+              fontSize: `${fs(9)}px`,
               color: tc.accent,
               letterSpacing: "2px",
               marginBottom: "10px",
@@ -742,7 +798,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
           {leaderboard.length === 0 ? (
             <div
               style={{
-                fontSize: "7px",
+                fontSize: `${fs(7)}px`,
                 color: "#555",
                 textAlign: "center",
                 fontFamily: "inherit",
@@ -777,7 +833,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
                   >
                     <span
                       style={{
-                        fontSize: "8px",
+                        fontSize: `${fs(8)}px`,
                         color:
                           i === 0
                             ? "#FFD700"
@@ -801,7 +857,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "7px",
+                        fontSize: `${fs(7)}px`,
                         color: isCurrentSession ? tc.accent : "#ccc",
                         fontFamily: "inherit",
                         flex: 1,
@@ -814,7 +870,7 @@ export default function BlackjackGame({ onGameOver }: Props) {
                     </span>
                     <span
                       style={{
-                        fontSize: "8px",
+                        fontSize: `${fs(8)}px`,
                         color: "#F5C518",
                         fontFamily: "inherit",
                         flexShrink: 0,
@@ -833,14 +889,28 @@ export default function BlackjackGame({ onGameOver }: Props) {
   );
 }
 
-function CardView({ card, accent }: { card: Card; accent: string }) {
+function CardView({
+  card,
+  accent,
+  width = 64,
+  height = 96,
+  scale = 1,
+}: {
+  card: Card;
+  accent: string;
+  width?: number;
+  height?: number;
+  scale?: number;
+}) {
+  const fs = (base: number) => Math.round(base * scale);
+
   if (card.faceDown) {
     return (
       <div
         className="flex items-center justify-center rounded-lg"
         style={{
-          width: 64,
-          height: 96,
+          width,
+          height,
           background: "linear-gradient(135deg, #1a3a6e 0%, #0d1e3e 100%)",
           border: "2px solid #2a4a8e",
           boxShadow: "2px 2px 8px #00000088",
@@ -848,8 +918,8 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
       >
         <div
           style={{
-            width: 48,
-            height: 80,
+            width: Math.round(width * 0.75),
+            height: Math.round(height * 0.833),
             background:
               "repeating-linear-gradient(45deg, #1a3a6e, #1a3a6e 4px, #0d1e3e 4px, #0d1e3e 8px)",
             borderRadius: 4,
@@ -863,27 +933,28 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
   const red = isRed(card.suit);
   return (
     <div
-      className="flex flex-col justify-between p-1 rounded-lg"
+      className="flex flex-col justify-between rounded-lg"
       style={{
-        width: 64,
-        height: 96,
+        width,
+        height,
         background: "#f8f4f0",
         border: `2px solid ${accent}66`,
         boxShadow: "2px 2px 8px #00000088",
         color: red ? "#c0392b" : "#1a1a1a",
         position: "relative",
+        padding: fs(4),
       }}
     >
       <div
         style={{
-          fontSize: "11px",
+          fontSize: `${fs(11)}px`,
           fontWeight: 700,
           lineHeight: 1,
           fontFamily: "'Press Start 2P', monospace",
         }}
       >
         <div>{card.rank}</div>
-        <div style={{ fontSize: "10px" }}>{card.suit}</div>
+        <div style={{ fontSize: `${fs(10)}px` }}>{card.suit}</div>
       </div>
       <div
         style={{
@@ -891,7 +962,7 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          fontSize: "22px",
+          fontSize: `${fs(22)}px`,
           opacity: 0.25,
         }}
       >
@@ -899,7 +970,7 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
       </div>
       <div
         style={{
-          fontSize: "11px",
+          fontSize: `${fs(11)}px`,
           fontWeight: 700,
           lineHeight: 1,
           fontFamily: "'Press Start 2P', monospace",
@@ -908,7 +979,7 @@ function CardView({ card, accent }: { card: Card; accent: string }) {
         }}
       >
         <div>{card.rank}</div>
-        <div style={{ fontSize: "10px" }}>{card.suit}</div>
+        <div style={{ fontSize: `${fs(10)}px` }}>{card.suit}</div>
       </div>
     </div>
   );

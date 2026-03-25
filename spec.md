@@ -1,32 +1,33 @@
-# Arcade Hub
+# Arcade Hub — Snake Enhancement
 
 ## Current State
-Arcade Hub is a web-based platform with a growing library of classic and casual games featuring Minecraft-themed UI and interchangeable themes. Current games include Snake, Tetris, Memory Match, Flappy Bird, Road Rush, Speed Drift, Space Shooter, Street Racer, Block Miner, Geometry Dash, Block Blast, Cookie Clicker, Solar Smash, Basketball Random, and Sky Ace.
+Snake has: score counter, 5 skins, 4 game modes (Classic/SpeedRun/Portal/Maze), best score per mode, 3 power-ups (star/clock/cherry), combo system, pause, death flash, mobile D-pad, 25x25 grid.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Blackjack card game accessible from the main game library
-- Full blackjack gameplay: player vs dealer, standard deck, hit/stand/double down actions
-- Betting system: player starts with a chip balance, places bets before each hand
-- Dealer draws to 17, player busts at over 21
-- Ace handling: 1 or 11
-- Win/loss/push outcomes with correct payouts (blackjack pays 3:2)
-- Best/current chip balance persisted to localStorage
-- Game thumbnail/selector card in the arcade grid
-- Full-screen support
+- Persistent top-10 leaderboard (trophy button toggle, same pattern as Blackjack/Cookie Clicker)
+- Shield power-up: absorbs one fatal collision (wall or self), flashes snake white when active
+- Particle burst when eating food (8 small colored particles fly outward, fade in ~400ms)
+- Gradient/fade on snake body — tail segments become progressively more transparent/darker
+- Portal gates drawn on edges in Portal mode (glowing cyan doorways on walls showing where wrapping occurs)
+- Level counter in HUD — increases every 5 food eaten, displayed alongside score
+- Smooth score number animation (count up)
 
 ### Modify
-- Add Blackjack entry to the games list/grid on the main page
+- Snake head: draw rounded rectangle with visible eyes (direction-aware), mouth detail
+- Food: change to a glowing apple/diamond shape with better spark effect
+- HUD: add level display, make combo more prominent with color change per combo tier
+- Game over screen: show final score, level reached, mode, skin used
 
 ### Remove
 - Nothing
 
 ## Implementation Plan
-1. Create a BlackjackGame React component with full game logic (deck, hand evaluation, dealer AI)
-2. Implement betting UI: chip balance display, bet input, deal button
-3. Implement gameplay UI: card display for player and dealer, hit/stand/double down buttons
-4. Handle all outcomes: win, lose, push, blackjack (3:2 payout)
-5. Persist chip balance to localStorage
-6. Add fullscreen support
-7. Register game in the main games grid with a thumbnail
+1. Add leaderboard data structure + localStorage persistence + trophy panel UI
+2. Add shield power-up type + logic (absorb death once, white flash)
+3. Add particle system in canvas render (array of particles, each with velocity/alpha/color)
+4. Snake body gradient: draw from tail→head, alpha increases. Head drawn as rounded rect with eyes/mouth
+5. Portal mode: compute dynamic portal gate positions based on snake head approach direction; draw cyan arches on wall edges
+6. Level = Math.floor(foodEaten / 5) + 1; show in HUD
+7. Leaderboard: save entry with name, score, mode on game over prompt; top-10; toggle with trophy icon

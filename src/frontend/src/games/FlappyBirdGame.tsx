@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Props {
   onGameOver: (score: number) => void;
+  isFullscreen?: boolean;
 }
 
 const CW = 380;
@@ -324,7 +325,10 @@ function getMedal(score: number): { label: string; color: string } | null {
   return null;
 }
 
-export default function FlappyBirdGame({ onGameOver }: Props) {
+export default function FlappyBirdGame({
+  onGameOver,
+  isFullscreen = false,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(initState());
   const rafRef = useRef<number | null>(null);
@@ -335,6 +339,8 @@ export default function FlappyBirdGame({ onGameOver }: Props) {
     return Number.parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
   });
   const bestRef = useRef(bestScore);
+
+  const scale = isFullscreen ? 1.6 : 1;
 
   const draw = useCallback((state: GameState, best: number) => {
     const cv = canvasRef.current;
@@ -685,23 +691,36 @@ export default function FlappyBirdGame({ onGameOver }: Props) {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={CW}
-      height={CH}
-      onClick={() => flapRef.current()}
-      onKeyDown={(e) => {
-        if (e.key === " " || e.code === "Space") {
-          e.preventDefault();
-          flapRef.current();
-        }
-      }}
-      className="rounded-lg cursor-pointer"
+    <div
       style={{
-        border: "3px solid #4a7c2f",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+        width: Math.round(CW * scale),
+        height: Math.round(CH * scale),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
       }}
-      tabIndex={0}
-    />
+    >
+      <canvas
+        ref={canvasRef}
+        width={CW}
+        height={CH}
+        onClick={() => flapRef.current()}
+        onKeyDown={(e) => {
+          if (e.key === " " || e.code === "Space") {
+            e.preventDefault();
+            flapRef.current();
+          }
+        }}
+        className="rounded-lg cursor-pointer"
+        style={{
+          border: "3px solid #4a7c2f",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          transform: `scale(${scale})`,
+          transformOrigin: "center center",
+        }}
+        tabIndex={0}
+      />
+    </div>
   );
 }
