@@ -172,6 +172,20 @@ interface HitFlash {
   t: number;
 }
 
+interface CameraZSyncProps {
+  cameraZRef: React.MutableRefObject<number>;
+}
+
+function CameraZSync({ cameraZRef }: CameraZSyncProps) {
+  useFrame(({ camera }) => {
+    camera.position.z = cameraZRef.current;
+    // Keep far clipping plane well beyond camera position for infinite zoom
+    (camera as THREE.PerspectiveCamera).far = cameraZRef.current * 10 + 10000;
+    (camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+  });
+  return null;
+}
+
 interface PlanetSceneProps {
   generation: number;
   planetScale: number;
@@ -179,6 +193,7 @@ interface PlanetSceneProps {
   onHit: (damage: number) => void;
   exploding: boolean;
   onExplosionDone: () => void;
+  cameraZRef: React.MutableRefObject<number>;
 }
 
 function PlanetScene({
@@ -188,6 +203,7 @@ function PlanetScene({
   onHit,
   exploding,
   onExplosionDone,
+  cameraZRef,
 }: PlanetSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
   const atmoRef = useRef<THREE.Mesh>(null!);
@@ -338,12 +354,13 @@ function PlanetScene({
 
   return (
     <>
+      <CameraZSync cameraZRef={cameraZRef} />
       <ambientLight intensity={0.35} />
       <directionalLight position={[5, 5, 5]} intensity={1.4} color="#fffbe8" />
       <pointLight position={[-4, -3, 4]} intensity={0.4} color="#4466ff" />
       <Stars
-        radius={100}
-        depth={50}
+        radius={100000}
+        depth={50000}
         count={5000}
         factor={4}
         saturation={0}
@@ -415,6 +432,8 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
   >([]);
   const hitScoreIdRef = useRef(0);
   const selectedWeaponRef = useRef(selectedWeapon);
+  const cameraZRef = useRef(6);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Planet scale grows 30% each destruction
   const planetScale = 1 + planetsDestroyed * 0.3;
@@ -422,6 +441,24 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
   useEffect(() => {
     selectedWeaponRef.current = selectedWeapon;
   }, [selectedWeapon]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      // Zoom speed scales with distance for comfortable infinite zoom
+      cameraZRef.current = Math.max(
+        0.1,
+        cameraZRef.current +
+          e.deltaY * 0.01 * Math.max(1, cameraZRef.current * 0.15),
+      );
+    };
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
   const handleHit = useCallback((damage: number) => {
     setHp((prev) => {
@@ -461,6 +498,7 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
 
   return (
     <div
+      ref={containerRef}
       style={{
         width: 640,
         height: 520,
@@ -492,6 +530,7 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
           onHit={handleHit}
           exploding={exploding}
           onExplosionDone={handleExplosionDone}
+          cameraZRef={cameraZRef}
         />
       </Canvas>
 
@@ -622,6 +661,22 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
           💥 PLANET DESTROYED!
         </div>
       )}
+
+      {/* Zoom hint */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 68,
+          right: 10,
+          fontFamily: "monospace",
+          fontSize: 9,
+          color: "rgba(255,255,255,0.3)",
+          pointerEvents: "none",
+          letterSpacing: 0.5,
+        }}
+      >
+        scroll to zoom
+      </div>
 
       {/* Weapon bar */}
       <div
