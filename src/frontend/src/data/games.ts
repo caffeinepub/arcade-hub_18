@@ -213,4 +213,16 @@ export const GAMES: GameData[] = [
     category: "RPG",
     thumbnail: "/assets/generated/game-pokemon-ruby.dim_400x240.jpg",
   },
+  {
+    id: "tube-clicker",
+    title: "TUBE CLICKER",
+    description:
+      "Click to upload videos and grow your YouTube channel! Buy upgrades to go viral and hit 1 billion views!",
+    rating: 4.9,
+    gradient: "linear-gradient(135deg, #2e0808 0%, #4a0a0a 50%, #1a0404 100%)",
+    accentColor: "#FF0000",
+    controls: "Click the video to gain views!",
+    category: "CASUAL",
+    thumbnail: "/assets/generated/game-tube-clicker.dim_400x240.jpg",
+  },
 ];

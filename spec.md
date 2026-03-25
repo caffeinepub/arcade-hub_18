@@ -1,33 +1,44 @@
-# Arcade Hub — Snake Enhancement
+# Arcade Hub - Solar Smash Improvements
 
 ## Current State
-Snake has: score counter, 5 skins, 4 game modes (Classic/SpeedRun/Portal/Maze), best score per mode, 3 power-ups (star/clock/cherry), combo system, pause, death flash, mobile D-pad, 25x25 grid.
+Solar Smash is a 3D planet destruction game with:
+- 5 weapons (Laser, Meteor, Nuke, Black Hole, Ice Ray)
+- Canvas-based planet texture with 3 types (Earth, Mars, Gas Giant)
+- Click to blast craters on planet texture
+- HP bar (1000 HP), score tracking, planets destroyed counter
+- Explosion particle effect when planet HP hits 0
+- Planet respawns with new texture after destruction
 
 ## Requested Changes (Diff)
 
 ### Add
-- Persistent top-10 leaderboard (trophy button toggle, same pattern as Blackjack/Cookie Clicker)
-- Shield power-up: absorbs one fatal collision (wall or self), flashes snake white when active
-- Particle burst when eating food (8 small colored particles fly outward, fade in ~400ms)
-- Gradient/fade on snake body — tail segments become progressively more transparent/darker
-- Portal gates drawn on edges in Portal mode (glowing cyan doorways on walls showing where wrapping occurs)
-- Level counter in HUD — increases every 5 food eaten, displayed alongside score
-- Smooth score number animation (count up)
+- 4 new weapons: Lightning Storm, Acid Rain, Gravity Bomb, Solar Flare
+- Planet health regen mode toggle (planet slowly regenerates HP)
+- Combo system: rapid hits in succession give bonus damage/score multiplier
+- Screen shake on impact (especially for big weapons)
+- Weapon charge indicator / cooldown for powerful weapons
+- More detailed explosion: debris chunks flying off planet
+- Planet ring system (Saturn-like ring on some planets)
+- Weapon impact sound visual cue (ripple wave)
 
 ### Modify
-- Snake head: draw rounded rectangle with visible eyes (direction-aware), mouth detail
-- Food: change to a glowing apple/diamond shape with better spark effect
-- HUD: add level display, make combo more prominent with color change per combo tier
-- Game over screen: show final score, level reached, mode, skin used
+- Planet types expanded: add 4th type (Ice/Tidal planet) and 5th type (Toxic/Alien planet)
+- HP increased to 2000 for more satisfying destruction
+- Hit popups show weapon name briefly
+- Explosion effect lasts longer and looks more spectacular
+- Weapon bar shows cooldown overlay for powerful weapons
 
 ### Remove
-- Nothing
+- Nothing removed
 
 ## Implementation Plan
-1. Add leaderboard data structure + localStorage persistence + trophy panel UI
-2. Add shield power-up type + logic (absorb death once, white flash)
-3. Add particle system in canvas render (array of particles, each with velocity/alpha/color)
-4. Snake body gradient: draw from tail→head, alpha increases. Head drawn as rounded rect with eyes/mouth
-5. Portal mode: compute dynamic portal gate positions based on snake head approach direction; draw cyan arches on wall edges
-6. Level = Math.floor(foodEaten / 5) + 1; show in HUD
-7. Leaderboard: save entry with name, score, mode on game over prompt; top-10; toggle with trophy icon
+1. Add new weapon definitions with cooldowns for Nuke/Black Hole/new heavy weapons
+2. Add new planet types (Ice, Toxic)
+3. Add ring mesh to planet scene for gas giant / some types
+4. Increase HP to 2000
+5. Implement combo multiplier: hits within 1.5s of each other chain a combo
+6. Add screen shake state driven by impact magnitude
+7. Add planet regen toggle button in UI
+8. Expand explosion with debris chunks (small spheres flying outward)
+9. Add ripple/shockwave mesh on impact
+10. Polish weapon bar with cooldown progress overlay

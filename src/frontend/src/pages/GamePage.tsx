@@ -21,6 +21,7 @@ import SpaceShooterGame from "@/games/SpaceShooterGame";
 import SpeedDriftGame from "@/games/SpeedDriftGame";
 import StreetRacerGame from "@/games/StreetRacerGame";
 import TetrisGame from "@/games/TetrisGame";
+import TubeClickerGame from "@/games/TubeClickerGame";
 import { ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -74,6 +75,7 @@ export default function GamePage({ game, onBack }: Props) {
     "sky-ace",
     "blackjack",
     "pokemon-ruby",
+    "tube-clicker",
   ];
 
   return (
@@ -210,6 +212,13 @@ export default function GamePage({ game, onBack }: Props) {
                 )}
                 {game.id === "pokemon-ruby" && (
                   <PokemonRubyGame key={gameKey} onGameOver={handleGameOver} />
+                )}
+                {game.id === "tube-clicker" && (
+                  <TubeClickerGame
+                    key={gameKey}
+                    onGameOver={handleGameOver}
+                    isFullscreen={isFullscreen}
+                  />
                 )}
               </div>
 
