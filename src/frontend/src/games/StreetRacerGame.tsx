@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Car, DollarSign, Lock, Trophy, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { playHit, playScore, playWin } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -242,6 +243,7 @@ export default function StreetRacerGame({ onGameOver }: Props) {
 
   // Start race
   const startRace = () => {
+    playScore();
     setPhase("race");
   };
 
@@ -422,6 +424,8 @@ export default function StreetRacerGame({ onGameOver }: Props) {
         const newWallet = wallet + delta;
         setWallet(newWallet);
         saveWallet(newWallet);
+        if (playerFinish === 1) playWin();
+        else playHit();
         setResults({ order, delta });
         setPhase("results");
         return;

@@ -7,9 +7,12 @@ import {
   Music2,
   Palette,
   Search,
+  Volume2,
+  VolumeX,
   Youtube,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { getMuted, toggleMute } from "../utils/sound";
 
 interface Props {
   onNavClick?: (section: string) => void;
@@ -27,6 +30,7 @@ const THEMES: { id: Theme; label: string }[] = [
 export default function Header({ onNavClick }: Props) {
   const { theme, setTheme } = useTheme();
   const [themeOpen, setThemeOpen] = useState(false);
+  const [muted, setMuted] = useState(() => getMuted());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,6 +101,24 @@ export default function Header({ onNavClick }: Props) {
 
           {/* Right */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMuted(toggleMute())}
+              data-ocid="header.mute_toggle"
+              className="font-arcade text-[9px] mc-btn px-3 py-2 tracking-wider flex items-center gap-1"
+              style={{
+                color: muted ? "#888888" : "#22c55e",
+                borderColor: muted ? "#888888" : "#22c55e",
+              }}
+              title={muted ? "Unmute sounds" : "Mute sounds"}
+              aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+            >
+              {muted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </button>
             <a
               href="https://soundinstants.com/"
               target="_blank"

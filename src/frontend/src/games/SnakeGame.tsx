@@ -1,4 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  playCombo,
+  playDeath,
+  playEat,
+  playLevelUp,
+  playPowerUp,
+} from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -639,6 +646,7 @@ export default function SnakeGame({ onGameOver }: Props) {
       }));
       setGameOverScore(finalScore);
       setGameOverMode(mode);
+      playDeath();
       setScore(finalScore);
       setIsNewBest(newBest);
       setScoreSaved(false);
@@ -757,6 +765,7 @@ export default function SnakeGame({ onGameOver }: Props) {
       } else if (pu === "shield") {
         g.activePowerUp = "shield";
         g.shieldActive = true;
+        playPowerUp();
         g.powerUpExpiry = now + 15000; // shield lasts longer
         setHudPowerUp({ type: "shield", remaining: 15 });
         g.floatingTexts.push({
@@ -809,6 +818,7 @@ export default function SnakeGame({ onGameOver }: Props) {
       const timeSinceLast = now - g.lastEatTime;
       if (g.lastEatTime > 0 && timeSinceLast < 3000) {
         g.combo += 1;
+        playCombo();
       } else {
         g.combo = 0;
       }
@@ -818,11 +828,13 @@ export default function SnakeGame({ onGameOver }: Props) {
       const basePoints = 10 + comboBonus;
       g.score += basePoints * g.scoreMultiplier;
       g.foodEaten += 1;
+      playEat();
 
       // Level check
       const newLevel = Math.floor(g.foodEaten / 5) + 1;
       if (newLevel > g.level) {
         g.level = newLevel;
+        playLevelUp();
         setLevel(newLevel);
         g.floatingTexts.push({
           text: "LEVEL UP!",

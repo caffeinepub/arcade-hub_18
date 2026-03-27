@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playDeath, playMine } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -269,6 +270,7 @@ export default function BlockMinerGame({ onGameOver }: Props) {
       gameStateRef.current = "over";
       stopTimers();
       drawGame();
+      playDeath();
       onGameOver(scoreRef.current);
       forceRender((n) => n + 1);
       return;
@@ -338,6 +340,7 @@ export default function BlockMinerGame({ onGameOver }: Props) {
       if (blockIdx < 0 || blockIdx >= colBlocks.length) return;
 
       const removed = colBlocks.splice(blockIdx, 1)[0];
+      playMine();
       scoreRef.current += BLOCK_DEFS[removed.type].points;
       scoreDisplayRef.current = scoreRef.current;
 

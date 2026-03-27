@@ -1,4 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  playDeath,
+  playExplosion,
+  playHit,
+  playLaser,
+  playLevelUp,
+} from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -262,12 +269,15 @@ export default function SkyAce({ onGameOver }: Props) {
               e.alive = false;
               spawnExplosion(e.x + e.width / 2, e.y + e.height / 2);
               s.score += 10;
+              playHit();
+              playExplosion();
               s.enemiesKilledThisWave++;
               if (s.enemiesKilledThisWave >= 10) {
                 s.wave++;
                 s.enemiesKilledThisWave = 0;
               }
               setDisplayScore(s.score);
+              playLevelUp();
               setDisplayWave(s.wave);
             }
           }
@@ -292,6 +302,7 @@ export default function SkyAce({ onGameOver }: Props) {
               setDisplayLives(s.lives);
               if (s.lives <= 0) {
                 s.gameOver = true;
+                playDeath();
                 setIsGameOver(true);
                 setFinalScore(s.score);
                 onGameOverRef.current(s.score);

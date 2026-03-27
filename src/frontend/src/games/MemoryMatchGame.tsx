@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { playCardFlip, playMatch, playMiss, playWin } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -45,6 +46,7 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
 
   useEffect(() => {
     if (matches === TOTAL_PAIRS) {
+      playWin();
       setTimeout(() => cbRef.current(score + matches * 50), 500);
     }
   }, [matches, score]);
@@ -58,6 +60,7 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
     setCards((prev) =>
       prev.map((c) => (c.id === id ? { ...c, flipped: true } : c)),
     );
+    playCardFlip();
     setFlipped(newFlipped);
 
     if (newFlipped.length === 2) {
@@ -77,6 +80,7 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
           setLocked(false);
           setMatches((m) => m + 1);
           setScore((s) => s + 100);
+          playMatch();
         }, 500);
       } else {
         setTimeout(() => {
@@ -88,6 +92,7 @@ export default function MemoryMatchGame({ onGameOver }: Props) {
           setFlipped([]);
           setLocked(false);
           setScore((s) => Math.max(0, s - 10));
+          playMiss();
         }, 900);
       }
     }

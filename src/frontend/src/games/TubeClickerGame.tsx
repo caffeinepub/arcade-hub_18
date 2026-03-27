@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { playClick, playCombo, playPowerUp, playWin } from "../utils/sound";
 
 interface Upgrade {
   id: string;
@@ -295,6 +296,7 @@ export default function TubeClickerGame({
         GOLDEN_MULTIPLIERS[
           Math.floor(Math.random() * GOLDEN_MULTIPLIERS.length)
         ];
+      playCombo();
       setGoldenVideo({
         active: true,
         multiplier,
@@ -447,6 +449,7 @@ export default function TubeClickerGame({
   );
 
   const buyUpgrade = useCallback((upgradeId: string) => {
+    playPowerUp();
     setUpgrades((prev) =>
       prev.map((u) => {
         if (u.id !== upgradeId) return u;

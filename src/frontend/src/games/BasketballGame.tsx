@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playBounce, playMiss, playShoot } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -288,6 +289,7 @@ export default function BasketballGame({ onGameOver }: Props) {
   }, [drawHoop, drawBall]);
 
   const shootBall = useCallback((clientX: number, clientY: number) => {
+    playShoot();
     const s = stateRef.current;
     if (!s.alive || s.ball) return;
     const cv = canvasRef.current;
@@ -369,6 +371,7 @@ export default function BasketballGame({ onGameOver }: Props) {
           const bonus = s.streak >= 2 ? s.streak : 1;
           const pts = 2 * bonus;
           s.score += pts;
+          playBounce();
           s.streak += 1;
           s.ball = null;
           s.hoop = randomHoop();
@@ -401,6 +404,7 @@ export default function BasketballGame({ onGameOver }: Props) {
 
         if (b.y > H + 40 || b.x < -40 || b.x > W + 40) {
           s.misses += 1;
+          playMiss();
           s.streak = 0;
           s.ball = null;
           s.rimHit = false;

@@ -2,6 +2,7 @@ import { Stars } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { playDeath, playExplosion, playHit, playShoot } from "../utils/sound";
 
 const TEX_SIZE = 512;
 
@@ -347,6 +348,7 @@ function PlanetScene({
         () => setFlashes((prev) => prev.filter((f) => f.id !== fid)),
         600,
       );
+      playShoot();
       onHit(weapon.damage);
     },
     [exploding, weaponRef, onHit],
@@ -461,10 +463,12 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
   }, []);
 
   const handleHit = useCallback((damage: number) => {
+    playHit();
     setHp((prev) => {
       const next = Math.max(0, prev - damage);
       if (next === 0 && prev > 0) {
         setExploding(true);
+        playExplosion();
         setShowDestroyed(true);
       }
       return next;
@@ -481,6 +485,7 @@ export default function SolarSmashGame({ onGameOver: _onGameOver }: Props) {
   }, []);
 
   const handleExplosionDone = useCallback(() => {
+    setTimeout(() => playDeath(), 200);
     setPlanetsDestroyed((d) => {
       const nextD = d + 1;
       const nextMaxHp = Math.round(1000 * (1 + nextD * 0.3));

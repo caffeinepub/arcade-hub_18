@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { playDeath, playDrift } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -244,6 +245,7 @@ export default function RoadRushGame({ onGameOver }: Props) {
         dy < (PLAYER_H + ENEMY_H) / 2 - 8
       ) {
         s.alive = false;
+        playDeath();
         draw(ctx);
         cbRef.current(s.score);
         return;

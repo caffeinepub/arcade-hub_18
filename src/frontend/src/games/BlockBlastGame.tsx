@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playClick, playExplosion, playHit } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -343,6 +344,7 @@ export default function BlockBlastGame({ onGameOver }: Props) {
     if (over || selected === null || !selectedPiece) return;
     if (!canPlace(grid, selectedPiece, row, col)) return;
 
+    playClick();
     const newGrid = placePiece(grid, selectedPiece, row, col);
 
     // Pop animation for placed cells
@@ -366,7 +368,9 @@ export default function BlockBlastGame({ onGameOver }: Props) {
       );
       setFlashCells(flashSet);
 
+      playExplosion();
       // Shake
+      playHit();
       setShaking(true);
       setTimeout(() => setShaking(false), 220);
 

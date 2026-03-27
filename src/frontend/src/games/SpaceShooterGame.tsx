@@ -1,4 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  playDeath,
+  playExplosion,
+  playHit,
+  playLaser,
+  playLevelUp,
+} from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -418,6 +425,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
         owner: "player",
         id: g.bid++,
       });
+      playLaser();
       g.lastShot = now;
     }
 
@@ -485,6 +493,8 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
       if (hit) {
         g.bullets = g.bullets.filter((b) => !hitBullets.includes(b.id));
         g.score += e.type === "basic" ? 10 : 25;
+        playHit();
+        playExplosion();
         g.explosions.push({
           x: e.x,
           y: e.y,
@@ -534,6 +544,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
 
     if (g.lives <= 0) {
       g.lives = 0;
+      playDeath();
       g.state = "GAME_OVER";
       cbRef.current(g.score);
       syncUI();
@@ -542,6 +553,7 @@ export default function SpaceShooterGame({ onGameOver }: Props) {
 
     if (g.enemies.length === 0 && g.state === "PLAYING") {
       g.wave++;
+      playLevelUp();
       g.state = "WAVE_CLEAR";
       g.waveClearTimer = 120;
       g.bullets = g.bullets.filter((b) => b.owner === "player");

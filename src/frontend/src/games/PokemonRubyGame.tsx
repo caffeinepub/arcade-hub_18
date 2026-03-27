@@ -1,4 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  playClick,
+  playDeath,
+  playHit,
+  playLevelUp,
+  playScore,
+} from "../utils/sound";
 
 interface Move {
   name: string;
@@ -635,6 +642,7 @@ export default function PokemonRubyGame({
     const wild = createWildPokemon();
     s.enemy = wild;
     s.phase = "battle";
+    playScore();
     s.battleAction = "menu";
     s.battleText = [`Wild ${wild.name} appeared!`];
     s.textTimer = 90;
@@ -667,6 +675,7 @@ export default function PokemonRubyGame({
     if (s.player.hp === 0) {
       s.battlePhase = "end";
       setTimeout(() => {
+        playDeath();
         pushText(`${s.player.name} fainted!`);
         setTimeout(() => {
           onGameOver(s.battlesWon);
@@ -698,6 +707,7 @@ export default function PokemonRubyGame({
         }
         // RUN button: x=290,y=380 w=120 h=40
         if (bx >= 290 && bx <= 410 && by >= 380 && by <= 420) {
+          playClick();
           const canRun =
             s.player.level >= (s.enemy?.level ?? 0) || Math.random() < 0.5;
           if (canRun) {
@@ -745,6 +755,7 @@ export default function PokemonRubyGame({
           ),
         );
         s.enemy.hp = Math.max(0, s.enemy.hp - dmg);
+        playHit();
         s.enemyHpAnim = s.enemy.hp;
         pushText(`${s.player.name} used ${move.name}! (-${dmg} HP)`);
         s.battleAction = "menu";
@@ -758,6 +769,7 @@ export default function PokemonRubyGame({
           // Level up every 10 exp
           const newLevel = Math.floor(s.player.exp / 10) + 5;
           if (newLevel > s.player.level) {
+            playLevelUp();
             s.player.level = newLevel;
             s.player.maxHp = Math.round(35 * (1 + (newLevel - 5) * 0.15));
             s.player.hp = s.player.maxHp;

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playDeath, playFlap, playScore } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -543,6 +544,7 @@ export default function FlappyBirdGame({
   }, []);
 
   const flap = useCallback(() => {
+    playFlap();
     const s = stateRef.current;
     if (!s.alive) {
       stateRef.current = initState();
@@ -624,6 +626,7 @@ export default function FlappyBirdGame({
         if (!p.passed && p.x + PIPE_W < BIRD_X) {
           p.passed = true;
           s.score += 1;
+          playScore();
         }
       }
 
@@ -643,6 +646,7 @@ export default function FlappyBirdGame({
       }
 
       if (hitGround || hitCeil || hitPipe) {
+        playDeath();
         s.alive = false;
         s.shake = 1;
         spawnDeathParticles(s, s.birdY);

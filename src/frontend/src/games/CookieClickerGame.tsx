@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { playClick, playCombo, playPowerUp } from "../utils/sound";
 
 interface Upgrade {
   id: string;
@@ -270,6 +271,7 @@ export default function CookieClickerGame({
       );
       if (currentCps > 0) {
         const gained = currentCps * dt;
+        playCombo();
         setCookies((c) => c + gained);
         setTotalCookies((t) => t + gained);
       }
@@ -331,6 +333,7 @@ export default function CookieClickerGame({
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const clickY = e.clientY - rect.top;
+      playClick();
       setCookies((c) => c + clickPower);
       setTotalCookies((t) => t + clickPower);
       setCookieScale(0.88);
@@ -343,6 +346,7 @@ export default function CookieClickerGame({
   );
 
   const buyUpgrade = useCallback((upgradeId: string) => {
+    playPowerUp();
     setUpgrades((prev) =>
       prev.map((u) => {
         if (u.id !== upgradeId) return u;

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playClick, playDeath, playLevelUp, playScore } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -257,6 +258,7 @@ export default function TetrisGame({ onGameOver }: Props) {
         board[ny][current.x + c] = current.color;
       });
     });
+    playClick();
     let cleared = 0;
     const newBoard = board.filter((row) => row.some((cell) => !cell));
     cleared = ROWS - newBoard.length;
@@ -266,6 +268,9 @@ export default function TetrisGame({ onGameOver }: Props) {
     s.lines += cleared;
 
     const level = Math.floor(s.lines / 10) + 1;
+    const prevLevel = Math.floor((s.lines - cleared) / 10) + 1;
+    if (cleared > 0) playScore();
+    if (level > prevLevel) playLevelUp();
     setHud({ score: s.score, level, lines: s.lines });
 
     // Update timer speed based on level
@@ -290,6 +295,7 @@ export default function TetrisGame({ onGameOver }: Props) {
     if (collides(s.board, s.current)) {
       s.alive = false;
       draw();
+      playDeath();
       cbRef.current(s.score);
       return;
     }

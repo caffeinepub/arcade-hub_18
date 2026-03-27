@@ -1,5 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useRef, useState } from "react";
+import { playCardFlip, playClick, playDeath, playWin } from "../utils/sound";
 
 interface Card {
   rank: string;
@@ -211,12 +212,14 @@ export default function BlackjackGame({
         endGame("blackjack", pHand, revealedDHand);
       }
     } else {
+      playCardFlip();
       setPhase("playing");
       void dScore;
     }
   }
 
   function hit() {
+    playCardFlip();
     if (phase !== "playing" || deck.length === 0) return;
     const newDeck = [...deck];
     const card = newDeck.pop()!;
@@ -300,6 +303,8 @@ export default function BlackjackGame({
 
     setOutcome(result);
 
+    if (result === "win" || result === "blackjack") playWin();
+    else if (result === "lose") playDeath();
     setChips((prev) => {
       let next = prev;
       if (result === "win") next = prev - bet + bet * 2;
@@ -337,6 +342,7 @@ export default function BlackjackGame({
   }
 
   function addBet(amount: number) {
+    playClick();
     if (phase !== "bet") return;
     setBet((b) => Math.min(b + amount, chips));
   }

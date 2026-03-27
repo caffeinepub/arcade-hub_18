@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { playDeath, playJump, playScore } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -689,6 +690,7 @@ export default function GeometryDashGame({ onGameOver }: Props) {
 
     s.frame++;
     s.score = Math.floor(s.frame / 10);
+    if (s.score > 0 && s.score % 10 === 0 && s.frame % 10 === 0) playScore();
     s.speed = 3.5 + s.frame * 0.0015;
 
     s.playerVY += GRAVITY;
@@ -755,6 +757,7 @@ export default function GeometryDashGame({ onGameOver }: Props) {
       s.deathFrame = 0;
       s.shakeFrames = 15;
       spawnParticles(s);
+      playDeath();
       onGameOver(s.score);
     }
 

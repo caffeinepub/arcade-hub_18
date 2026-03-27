@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { playDeath, playDrift } from "../utils/sound";
 
 interface Props {
   onGameOver: (score: number) => void;
@@ -276,6 +277,7 @@ export default function SpeedDriftGame({ onGameOver }: Props) {
       if (s.timeLeft <= 0) {
         s.timeLeft = 0;
         s.alive = false;
+        playDeath();
         draw(ctx);
         cbRef.current(s.score);
         return;
